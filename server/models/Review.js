@@ -19,10 +19,10 @@ const ReviewSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// One review per user per listing
+
 ReviewSchema.index({ listing: 1, reviewer: 1 }, { unique: true });
 
-// Recalculate average rating after a review is saved
+
 ReviewSchema.post("save", async function () {
   const Listing = mongoose.model("Listing");
   const stats = await mongoose

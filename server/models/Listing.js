@@ -17,7 +17,7 @@ const ListingSchema = new mongoose.Schema(
     },
     location: {
       type: { type: String, enum: ["Point"], default: "Point" },
-      coordinates: { type: [Number], default: [0, 0] }, // [longitude, latitude]
+      coordinates: { type: [Number], default: [0, 0] },
     },
     rent: { type: Number, required: [true, "Rent is required"] },
     type: { type: String, enum: ["PG", "Hostel"], required: true },
@@ -37,7 +37,7 @@ const ListingSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// Geospatial index for location-based queries
+
 ListingSchema.index({ location: "2dsphere" });
 ListingSchema.index({ city: 1, rent: 1, status: 1 });
 

@@ -1,9 +1,21 @@
 const express = require("express");
 const router = express.Router();
+const {
+  register,
+  login,
+  getMe,
+  updateProfile,
+  changePassword,
+} = require("../controllers/authController");
+const { protect } = require("../middleware/auth");
 
-// Placeholder — routes will be added from Day 2
-router.get("/test", (req, res) => {
-  res.json({ success: true, message: "Route working" });
-});
+// Public routes
+router.post("/register", register);
+router.post("/login", login);
+
+// Protected routes (must be logged in)
+router.get("/me", protect, getMe);
+router.put("/update-profile", protect, updateProfile);
+router.put("/change-password", protect, changePassword);
 
 module.exports = router;
