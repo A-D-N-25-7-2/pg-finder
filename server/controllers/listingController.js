@@ -1,5 +1,15 @@
 const Listing = require("../models/Listing");
+const User = require("../models/User");
 const { cloudinary } = require("../config/cloudinary");
+const { validationResult } = require("express-validator");
+
+// Normalize amenities: accepts array or comma-separated string
+const parseAmenities = (amenities) => {
+  if (!amenities) return [];
+  if (Array.isArray(amenities)) return amenities.map((a) => a.trim());
+  if (typeof amenities === "string") return amenities.split(",").map((a) => a.trim()).filter(Boolean);
+  return [];
+};
 
 // ─── CREATE LISTING ───────────────────────────────────────────
 // POST /api/v1/listings
@@ -17,6 +27,9 @@ const createListing = async (req, res) => {
       rules,
     } = req.body;
 
+    console.log("req.body:", req.body);
+    console.log("typeof req.body.amenities:", typeof req.body.amenities);
+
     // Build listing object
     const listingData = {
       owner: req.user.id,
@@ -28,7 +41,7 @@ const createListing = async (req, res) => {
       type,
       gender,
       rules,
-      amenities: amenities ? JSON.parse(amenities) : [],
+      amenities: parseAmenities(amenities),
     };
 
     const listing = await Listing.create(listingData);
@@ -120,39 +133,40 @@ const getListing = async (req, res) => {
 // ─── UPDATE LISTING ───────────────────────────────────────────
 // PUT /api/v1/listings/:id
 const updateListing = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   try {
-    let listing = await Listing.findById(req.params.id);
+    const listing = await Listing.findById(req.params.id);
 
     if (!listing) {
-      return res.status(404).json({
-        success: false,
-        message: "Listing not found",
-      });
+      return res.status(404).json({ success: false, message: "Listing not found" });
     }
 
-    // Make sure user is the owner
     if (listing.owner.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: "Not authorized to update this listing",
-      });
+      return res.status(403).json({ success: false, message: "Not authorized to update this listing" });
     }
 
-    // Parse amenities if sent as string
-    if (req.body.amenities && typeof req.body.amenities === "string") {
-      req.body.amenities = JSON.parse(req.body.amenities);
+    // Only allow specific fields to be updated
+    const allowed = ["title", "description", "address", "city", "rent", "type", "gender", "amenities", "rules"];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
 
-    listing = await Listing.findByIdAndUpdate(req.params.id, req.body, {
+    if (updates.amenities !== undefined) {
+      updates.amenities = parseAmenities(updates.amenities);
+    }
+    if (updates.city) updates.city = updates.city.toLowerCase();
+
+    const updated = await Listing.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     });
 
-    res.status(200).json({
-      success: true,
-      message: "Listing updated successfully",
-      listing,
-    });
+    res.status(200).json({ success: true, message: "Listing updated successfully", listing: updated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -200,23 +214,26 @@ const deleteListing = async (req, res) => {
 // PUT /api/v1/listings/:id/status
 const toggleStatus = async (req, res) => {
   try {
+    const { status } = req.body;
+
+    if (!["Active", "Inactive"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Status must be 'Active' or 'Inactive'",
+      });
+    }
+
     const listing = await Listing.findById(req.params.id);
 
     if (!listing) {
-      return res.status(404).json({
-        success: false,
-        message: "Listing not found",
-      });
+      return res.status(404).json({ success: false, message: "Listing not found" });
     }
 
     if (listing.owner.toString() !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: "Not authorized",
-      });
+      return res.status(403).json({ success: false, message: "Not authorized" });
     }
 
-    listing.status = req.body.status;
+    listing.status = status;
     await listing.save();
 
     res.status(200).json({
@@ -328,22 +345,25 @@ const deleteImage = async (req, res) => {
 // POST /api/v1/listings/:id/wishlist
 const addToWishlist = async (req, res) => {
   try {
-    const user = req.user;
+    const listingId = req.params.id;
 
-    if (user.wishlist.includes(req.params.id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Already in wishlist",
-      });
+    // Verify listing exists
+    const listing = await Listing.findById(listingId);
+    if (!listing) {
+      return res.status(404).json({ success: false, message: "Listing not found" });
     }
 
-    user.wishlist.push(req.params.id);
+    const user = await User.findById(req.user.id);
+
+    // Prevent duplicates
+    if (user.wishlist.some((id) => id.toString() === listingId)) {
+      return res.status(400).json({ success: false, message: "Already in wishlist" });
+    }
+
+    user.wishlist.push(listingId);
     await user.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Added to wishlist",
-    });
+    res.status(200).json({ success: true, message: "Added to wishlist" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -352,16 +372,11 @@ const addToWishlist = async (req, res) => {
 // DELETE /api/v1/listings/:id/wishlist
 const removeFromWishlist = async (req, res) => {
   try {
-    const user = req.user;
-    user.wishlist = user.wishlist.filter(
-      (id) => id.toString() !== req.params.id,
-    );
+    const user = await User.findById(req.user.id);
+    user.wishlist = user.wishlist.filter((id) => id.toString() !== req.params.id);
     await user.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Removed from wishlist",
-    });
+    res.status(200).json({ success: true, message: "Removed from wishlist" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -370,12 +385,12 @@ const removeFromWishlist = async (req, res) => {
 // GET /api/v1/listings/user/wishlist
 const getWishlist = async (req, res) => {
   try {
-    const user = await req.user.populate("wishlist");
-
-    res.status(200).json({
-      success: true,
-      listings: user.wishlist,
+    const user = await User.findById(req.user.id).populate({
+      path: "wishlist",
+      populate: { path: "owner", select: "name email phone" },
     });
+
+    res.status(200).json({ success: true, count: user.wishlist.length, listings: user.wishlist });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
