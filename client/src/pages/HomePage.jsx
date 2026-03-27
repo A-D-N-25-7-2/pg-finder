@@ -29,7 +29,7 @@ const HomePage = () => {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             placeholder="Enter city (e.g. Bangalore, Mumbai...)"
-            className="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none"
+            className="flex-1 px-4 py-3 rounded-lg text-white focus:outline-none"
           />
           <button
             type="submit"
