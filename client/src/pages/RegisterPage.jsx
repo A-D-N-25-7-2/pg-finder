@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
@@ -14,7 +15,6 @@ const RegisterPage = () => {
     role: "user",
     phone: "",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -23,41 +23,41 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
       const { data } = await API.post("/auth/register", formData);
       login(data.user, data.token);
+      toast.success("Account created successfully!");
 
-      // Redirect based on role
       if (data.user.role === "owner") navigate("/owner/dashboard");
       else navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      toast.error(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4 py-10">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        {/* Header */}
-        <h2 className="text-3xl font-bold text-blue-800 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4 py-8">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-blue-800">PG Finder</h1>
+          <p className="text-gray-400 text-sm mt-1">
+            Find your perfect home away from home
+          </p>
+        </div>
+
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">
           Create Account
         </h2>
-        <p className="text-gray-500 mb-6">Join PG Finder today</p>
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
+        <p className="text-gray-500 text-sm mb-6">
+          Join thousands finding their perfect PG
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Full Name
@@ -69,11 +69,10 @@ const RegisterPage = () => {
               onChange={handleChange}
               placeholder="John Doe"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
@@ -85,14 +84,14 @@ const RegisterPage = () => {
               onChange={handleChange}
               placeholder="john@example.com"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone (optional)
+              Phone{" "}
+              <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <input
               type="text"
@@ -100,11 +99,10 @@ const RegisterPage = () => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="9876543210"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
@@ -116,11 +114,10 @@ const RegisterPage = () => {
               onChange={handleChange}
               placeholder="Min 6 characters"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
 
-          {/* Role */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Register As
@@ -129,25 +126,48 @@ const RegisterPage = () => {
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             >
-              <option value="user">Tenant (Looking for PG)</option>
-              <option value="owner">Owner (Listing a PG)</option>
+              <option value="user">Tenant — Looking for PG</option>
+              <option value="owner">Owner — Listing a PG</option>
             </select>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-700 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 disabled:opacity-50 transition"
+            className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-800 disabled:opacity-50 transition"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  />
+                </svg>
+                Creating Account...
+              </span>
+            ) : (
+              "Create Account"
+            )}
           </button>
         </form>
 
-        {/* Login link */}
-        <p className="text-center text-gray-600 mt-4">
+        <p className="text-center text-gray-500 mt-6 text-sm">
           Already have an account?{" "}
           <Link
             to="/login"

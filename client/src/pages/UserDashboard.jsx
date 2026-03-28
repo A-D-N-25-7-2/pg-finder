@@ -3,7 +3,121 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import BookingsTab from "../components/BookingTab";
+// ── My Reviews Tab Component ──────────────────────────────────
+const MyReviewsTab = () => {
+  const navigate = useNavigate();
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchMyReviews = async () => {
+      try {
+        const { data } = await API.get("/reviews/my-reviews");
+        setReviews(data.reviews);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMyReviews();
+  }, []);
+
+  const handleDelete = async (reviewId) => {
+    if (!window.confirm("Delete this review?")) return;
+    try {
+      await API.delete(`/reviews/${reviewId}`);
+      setReviews(reviews.filter((r) => r._id !== reviewId));
+    } catch (err) {
+      alert("Failed to delete review");
+    }
+  };
+
+  const renderStars = (rating) => "★".repeat(rating) + "☆".repeat(5 - rating);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12 text-gray-400">
+        Loading reviews...
+      </div>
+    );
+  }
+
+  if (reviews.length === 0) {
+    return (
+      <div className="text-center py-12 text-gray-400">
+        <p className="text-5xl mb-4">⭐</p>
+        <p className="text-lg">No reviews written yet.</p>
+        <button
+          onClick={() => navigate("/search")}
+          className="mt-4 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition"
+        >
+          Browse Listings
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {reviews.map((review) => (
+        <div
+          key={review._id}
+          className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition"
+        >
+          <div className="flex gap-4">
+            {/* Listing image */}
+            <div className="w-20 h-16 bg-blue-100 rounded-lg overflow-hidden shrink-0">
+              {review.listing?.images?.[0] ? (
+                <img
+                  src={review.listing.images[0]}
+                  alt={review.listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xl">
+                  🏠
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <h3
+                  className="font-bold text-gray-800 cursor-pointer hover:text-blue-700 text-sm"
+                  onClick={() => navigate(`/listing/${review.listing?._id}`)}
+                >
+                  {review.listing?.title}
+                </h3>
+                <button
+                  onClick={() => handleDelete(review._id)}
+                  className="text-red-500 text-xs hover:underline ml-2"
+                >
+                  Delete
+                </button>
+              </div>
+              <p className="text-gray-500 text-xs mb-1">
+                📍 {review.listing?.city} — ₹{review.listing?.rent?.toLocaleString()}/mo
+              </p>
+              <p className="text-yellow-500 text-sm">
+                {renderStars(review.rating)}
+                <span className="text-gray-500 text-xs ml-1">
+                  {review.rating}/5
+                </span>
+              </p>
+              <p className="text-gray-600 text-sm mt-1">{review.comment}</p>
+              <p className="text-gray-400 text-xs mt-1">
+                {new Date(review.createdAt).toLocaleDateString("en-IN", {
+                  year: "numeric", month: "long", day: "numeric",
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 const UserDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -183,15 +297,8 @@ const UserDashboard = () => {
         )}
 
         {/* ── REVIEWS TAB ──────────────────────────────────── */}
-        {activeTab === "reviews" && (
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">My Reviews</h2>
-            <div className="text-center py-12 text-gray-400">
-              <p className="text-5xl mb-4">⭐</p>
-              <p>Reviews system coming in Day 6!</p>
-            </div>
-          </div>
-        )}
+        {/* ── REVIEWS TAB ──────────────────────────────────── */}
+        {activeTab === "reviews" && <MyReviewsTab />}
       </div>
     </div>
   );

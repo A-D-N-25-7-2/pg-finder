@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import SkeletonCard from "../components/SkeletonCard";
 import API from "../api/axios";
 
 const SearchPage = () => {
@@ -21,25 +23,27 @@ const SearchPage = () => {
     page: 1,
   });
 
-  const fetchListings = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      // Build query string from filters
-      const params = new URLSearchParams();
-      Object.entries(filters).forEach(([key, val]) => {
-        if (val) params.append(key, val);
-      });
-
-      const { data } = await API.get(`/listings?${params.toString()}`);
-      setListings(data.listings);
-      setTotalPages(data.totalPages);
-    } catch (err) {
-      setError("Failed to fetch listings");
-    } finally {
-      setLoading(false);
+ const fetchListings = async () => {
+  setLoading(true);
+  setError("");
+  try {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, val]) => {
+      if (val) params.append(key, val);
+    });
+    const { data } = await API.get(`/listings?${params.toString()}`);
+    setListings(data.listings);
+    setTotalPages(data.totalPages);
+    if (data.listings.length === 0) {
+      toast("No listings found for your filters", { icon: "🔍" });
     }
-  };
+  } catch (err) {
+    setError("Failed to fetch listings");
+    toast.error("Failed to load listings");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchListings();
@@ -159,11 +163,14 @@ const SearchPage = () => {
           </h1>
 
           {/* Loading */}
-          {loading && (
-            <div className="text-center py-20 text-gray-500">
-              Loading listings...
-            </div>
-          )}
+          {/* Loading — skeleton cards */}
+{loading && (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <SkeletonCard key={i} />
+    ))}
+  </div>
+)}
 
           {/* Error */}
           {error && (

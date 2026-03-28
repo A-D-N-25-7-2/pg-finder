@@ -11,7 +11,7 @@ import ListingDetailPage from "./pages/ListingDetailPage";
 import UserDashboard from "./pages/UserDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-
+import NotFoundPage from "./pages/NotFoundPage";
 function App() {
   return (
     <AuthProvider>
@@ -63,6 +63,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
     </AuthProvider>

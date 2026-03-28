@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-
+import toast from "react-hot-toast";
 const BookingPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -44,17 +44,21 @@ const BookingPage = () => {
     setError("");
     setSubmitting(true);
 
-    try {
-      await API.post("/bookings", {
-        listingId: id,
-        ...formData,
-      });
-      setSuccess(true);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send booking request");
-    } finally {
-      setSubmitting(false);
-    }
+   try {
+     await API.post("/bookings", {
+       listingId: id,
+       ...formData,
+     });
+     toast.success("Booking request sent successfully!");
+     setSuccess(true);
+   } catch (err) {
+     const msg =
+       err.response?.data?.message || "Failed to send booking request";
+     setError(msg);
+     toast.error(msg);
+   } finally {
+     setSubmitting(false);
+   }
   };
 
   // Loading

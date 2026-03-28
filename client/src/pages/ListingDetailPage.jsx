@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-
+import ReviewsSection from "../components/ReviewsSection";
 const ListingDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -264,6 +264,7 @@ const ListingDetailPage = () => {
                     </div>
                   </div>
                 </div>
+                <ReviewsSection listingId={id} />
               </div>
 
               {/* ── RIGHT — Sidebar ──────────────────────── */}
