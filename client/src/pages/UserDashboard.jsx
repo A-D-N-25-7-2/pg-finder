@@ -2,305 +2,213 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
-import BookingsTab from "../components/BookingTab";
-// ── My Reviews Tab Component ──────────────────────────────────
+import DashboardLayout from "../components/layout/DashboardLayout";
+import Card from "../components/ui/Card";
+import Badge from "../components/ui/Badge";
+import Button from "../components/ui/Button";
+import EmptyState from "../components/ui/EmptyState";
+import Spinner from "../components/ui/Spinner";
+
+/* ── My Reviews Tab ─────────────────────────────────────── */
 const MyReviewsTab = () => {
   const navigate = useNavigate();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMyReviews = async () => {
-      try {
-        const { data } = await API.get("/reviews/my-reviews");
-        setReviews(data.reviews);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMyReviews();
+    (async () => {
+      try { const { data } = await API.get("/reviews/my-reviews"); setReviews(data.reviews); }
+      catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    })();
   }, []);
 
   const handleDelete = async (reviewId) => {
     if (!window.confirm("Delete this review?")) return;
-    try {
-      await API.delete(`/reviews/${reviewId}`);
-      setReviews(reviews.filter((r) => r._id !== reviewId));
-    } catch (err) {
-      alert("Failed to delete review");
-    }
+    try { await API.delete(`/reviews/${reviewId}`); setReviews(reviews.filter(r => r._id !== reviewId)); }
+    catch { alert("Failed to delete review"); }
   };
 
-  const renderStars = (rating) => "★".repeat(rating) + "☆".repeat(5 - rating);
-
-  if (loading) {
-    return (
-      <div className="text-center py-12 text-gray-400">
-        Loading reviews...
-      </div>
-    );
-  }
-
-  if (reviews.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-400">
-        <p className="text-5xl mb-4">⭐</p>
-        <p className="text-lg">No reviews written yet.</p>
-        <button
-          onClick={() => navigate("/search")}
-          className="mt-4 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition"
-        >
-          Browse Listings
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <Spinner className="py-12" />;
+  if (reviews.length === 0) return <EmptyState icon="⭐" title="No reviews yet" description="Browse listings and share your experience." actionLabel="Browse Listings" onAction={() => navigate("/search")} />;
 
   return (
-    <div className="space-y-4">
-      {reviews.map((review) => (
-        <div
-          key={review._id}
-          className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition"
-        >
+    <div className="space-y-3">
+      {reviews.map(review => (
+        <Card key={review._id} className="p-4 hover:border-gray-700 transition-colors">
           <div className="flex gap-4">
-            {/* Listing image */}
-            <div className="w-20 h-16 bg-blue-100 rounded-lg overflow-hidden shrink-0">
+            <div className="w-20 h-16 bg-dark-elevated rounded-lg overflow-hidden shrink-0">
               {review.listing?.images?.[0] ? (
-                <img
-                  src={review.listing.images[0]}
-                  alt={review.listing.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-xl">
-                  🏠
-                </div>
-              )}
+                <img src={review.listing.images[0]} alt="" className="w-full h-full object-cover" />
+              ) : <div className="w-full h-full flex items-center justify-center text-xl">🏠</div>}
             </div>
-
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
-                <h3
-                  className="font-bold text-gray-800 cursor-pointer hover:text-blue-700 text-sm"
-                  onClick={() => navigate(`/listing/${review.listing?._id}`)}
-                >
+                <h3 className="font-bold text-white text-sm cursor-pointer hover:text-blue-400 transition-colors truncate" onClick={() => navigate(`/listing/${review.listing?._id}`)}>
                   {review.listing?.title}
                 </h3>
-                <button
-                  onClick={() => handleDelete(review._id)}
-                  className="text-red-500 text-xs hover:underline ml-2"
-                >
-                  Delete
-                </button>
+                <button onClick={() => handleDelete(review._id)} className="text-red-400 text-xs hover:underline ml-2 shrink-0">Delete</button>
               </div>
-              <p className="text-gray-500 text-xs mb-1">
-                📍 {review.listing?.city} — ₹{review.listing?.rent?.toLocaleString()}/mo
-              </p>
-              <p className="text-yellow-500 text-sm">
-                {renderStars(review.rating)}
-                <span className="text-gray-500 text-xs ml-1">
-                  {review.rating}/5
-                </span>
-              </p>
-              <p className="text-gray-600 text-sm mt-1">{review.comment}</p>
-              <p className="text-gray-400 text-xs mt-1">
-                {new Date(review.createdAt).toLocaleDateString("en-IN", {
-                  year: "numeric", month: "long", day: "numeric",
-                })}
-              </p>
+              <p className="text-gray-500 text-xs mb-1">📍 {review.listing?.city} — ₹{review.listing?.rent?.toLocaleString()}/mo</p>
+              <p className="text-amber-400 text-sm">{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)} <span className="text-gray-500 text-xs ml-1">{review.rating}/5</span></p>
+              <p className="text-gray-400 text-sm mt-1 line-clamp-2">{review.comment}</p>
             </div>
           </div>
-        </div>
+        </Card>
       ))}
     </div>
   );
 };
-const UserDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
+/* ── Bookings Tab ──────────────────────────────────────────── */
+const BookingsTab = () => {
+  const navigate = useNavigate();
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try { const { data } = await API.get("/bookings/my-requests"); setBookings(data.bookings); }
+      catch (err) { console.error(err); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
+  const cancelBooking = async (bookingId) => {
+    try { await API.put(`/bookings/${bookingId}/cancel`); setBookings(bookings.map(b => b._id === bookingId ? { ...b, status: "Cancelled" } : b)); }
+    catch (err) { alert(err.response?.data?.message || "Failed to cancel"); }
+  };
+
+  if (loading) return <Spinner className="py-12" />;
+  if (bookings.length === 0) return <EmptyState icon="📋" title="No bookings yet" description="Browse listings and send booking requests." actionLabel="Browse Listings" onAction={() => navigate("/search")} />;
+
+  return (
+    <div className="space-y-3">
+      {bookings.map(booking => (
+        <Card key={booking._id} className="p-4">
+          <div className="flex gap-4">
+            <div className="w-24 h-20 bg-dark-elevated rounded-lg overflow-hidden shrink-0">
+              {booking.listing?.images?.[0] ? (
+                <img src={booking.listing.images[0]} alt="" className="w-full h-full object-cover" />
+              ) : <div className="w-full h-full flex items-center justify-center text-2xl">🏠</div>}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-white cursor-pointer hover:text-blue-400 transition-colors text-sm truncate" onClick={() => navigate(`/listing/${booking.listing?._id}`)}>
+                  {booking.listing?.title}
+                </h3>
+                <Badge status={booking.status} />
+              </div>
+              <p className="text-gray-500 text-sm">📍 {booking.listing?.city} • ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
+              <p className="text-gray-500 text-sm">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString()} • {booking.duration} month(s)</p>
+              {booking.ownerResponse && (
+                <div className="mt-2 bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-400">
+                  💬 Owner: {booking.ownerResponse}
+                </div>
+              )}
+              {booking.status === "Pending" && (
+                <Button variant="danger" size="sm" onClick={() => cancelBooking(booking._id)} className="mt-2">Cancel Request</Button>
+              )}
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+/* ── Main Dashboard ────────────────────────────────────────── */
+const UserDashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [wishlist, setWishlist] = useState([]);
   const [wLoading, setWLoading] = useState(false);
 
-  // Fetch wishlist
   useEffect(() => {
     if (activeTab === "wishlist") fetchWishlist();
   }, [activeTab]);
 
   const fetchWishlist = async () => {
     setWLoading(true);
-    try {
-      const { data } = await API.get("/listings/user/wishlist");
-      setWishlist(data.listings);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setWLoading(false);
-    }
+    try { const { data } = await API.get("/listings/user/wishlist"); setWishlist(data.listings); }
+    catch (err) { console.error(err); }
+    finally { setWLoading(false); }
   };
 
   const removeFromWishlist = async (listingId) => {
-    try {
-      await API.delete(`/listings/${listingId}/wishlist`);
-      setWishlist(wishlist.filter((l) => l._id !== listingId));
-    } catch (err) {
-      console.error(err);
-    }
+    try { await API.delete(`/listings/${listingId}/wishlist`); setWishlist(wishlist.filter(l => l._id !== listingId)); }
+    catch (err) { console.error(err); }
   };
 
-  const tabs = ["profile", "bookings", "wishlist", "reviews"];
+  const tabs = [
+    { key: "profile", label: "Profile", icon: "👤" },
+    { key: "bookings", label: "Bookings", icon: "📋" },
+    { key: "wishlist", label: "Wishlist", icon: "❤️" },
+    { key: "reviews", label: "Reviews", icon: "⭐" },
+  ];
 
   return (
-    <div className="min-h-screen bg-blue-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-blue-800 mb-6">My Dashboard</h1>
-
-        {/* Tab buttons */}
-        <div className="flex gap-2 mb-6 flex-wrap">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-full font-semibold capitalize transition ${
-                activeTab === tab
-                  ? "bg-blue-700 text-white"
-                  : "bg-white text-blue-700 border border-blue-700 hover:bg-blue-50"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* ── PROFILE TAB ─────────────────────────────────── */}
-        {activeTab === "profile" && (
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              Profile Information
-            </h2>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-blue-700 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
-                <div>
-                  <p className="text-xl font-bold text-gray-800">
-                    {user?.name}
-                  </p>
-                  <p className="text-gray-500">{user?.email}</p>
-                  <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-1 rounded-full capitalize">
-                    {user?.role}
-                  </span>
-                </div>
-              </div>
-              <hr />
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-400">Full Name</p>
-                  <p className="font-medium text-gray-800">{user?.name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400">Email</p>
-                  <p className="font-medium text-gray-800">{user?.email}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-                className="mt-4 bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Logout
-              </button>
+    <DashboardLayout title="My Dashboard" tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab}>
+      {/* Profile */}
+      {activeTab === "profile" && (
+        <Card className="p-6">
+          <h2 className="text-lg font-bold text-white mb-4">Profile Information</h2>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-xl font-bold text-white">{user?.name}</p>
+              <p className="text-gray-500">{user?.email}</p>
+              <Badge status={user?.role} className="mt-1" />
             </div>
           </div>
-        )}
-        {/* ── BOOKINGS TAB ─────────────────────────────────── */}
-        {activeTab === "bookings" && <BookingsTab />}
+          <div className="border-t border-dark-border pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><p className="text-gray-500">Full Name</p><p className="font-medium text-gray-300">{user?.name}</p></div>
+              <div><p className="text-gray-500">Email</p><p className="font-medium text-gray-300">{user?.email}</p></div>
+              {user?.phone && <div><p className="text-gray-500">Phone</p><p className="font-medium text-gray-300">{user.phone}</p></div>}
+            </div>
+          </div>
+        </Card>
+      )}
 
-        {/* ── WISHLIST TAB ─────────────────────────────────── */}
-        {activeTab === "wishlist" && (
-          <div className="bg-white rounded-2xl shadow p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              My Wishlist
-            </h2>
+      {/* Bookings */}
+      {activeTab === "bookings" && <BookingsTab />}
 
-            {wLoading ? (
-              <div className="text-center py-12 text-gray-400">
-                Loading wishlist...
-              </div>
-            ) : wishlist.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
-                <p className="text-5xl mb-4">🤍</p>
-                <p>No saved listings yet.</p>
-                <button
-                  onClick={() => navigate("/search")}
-                  className="mt-4 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition"
-                >
-                  Browse Listings
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {wishlist.map((listing) => (
-                  <div
-                    key={listing._id}
-                    className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition"
-                  >
-                    {/* Image */}
-                    <div className="h-36 bg-blue-100 overflow-hidden">
-                      {listing.images?.[0] ? (
-                        <img
-                          src={listing.images[0]}
-                          alt={listing.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">
-                          🏠
-                        </div>
-                      )}
-                    </div>
-                    {/* Info */}
-                    <div className="p-3">
-                      <h3 className="font-bold text-gray-800 mb-1">
-                        {listing.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm mb-2">
-                        📍 {listing.city} — ₹{listing.rent.toLocaleString()}/mo
-                      </p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => navigate(`/listing/${listing._id}`)}
-                          className="flex-1 bg-blue-700 text-white py-1 rounded-lg text-sm hover:bg-blue-800 transition"
-                        >
-                          View
-                        </button>
-                        <button
-                          onClick={() => removeFromWishlist(listing._id)}
-                          className="flex-1 border border-red-400 text-red-500 py-1 rounded-lg text-sm hover:bg-red-50 transition"
-                        >
-                          Remove
-                        </button>
-                      </div>
+      {/* Wishlist */}
+      {activeTab === "wishlist" && (
+        <div>
+          {wLoading ? <Spinner className="py-12" /> : wishlist.length === 0 ? (
+            <EmptyState icon="🤍" title="No saved listings" description="Browse listings and save your favorites." actionLabel="Browse Listings" onAction={() => navigate("/search")} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {wishlist.map(listing => (
+                <Card key={listing._id} hover className="overflow-hidden">
+                  <div className="h-36 bg-dark-elevated overflow-hidden">
+                    {listing.images?.[0] ? (
+                      <img src={listing.images[0]} alt="" className="w-full h-full object-cover" />
+                    ) : <div className="w-full h-full flex items-center justify-center text-3xl">🏠</div>}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-bold text-white text-sm mb-1">{listing.title}</h3>
+                    <p className="text-gray-500 text-sm mb-2">📍 {listing.city} — ₹{listing.rent?.toLocaleString()}/mo</p>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => navigate(`/listing/${listing._id}`)} className="flex-1">View</Button>
+                      <Button variant="danger" size="sm" onClick={() => removeFromWishlist(listing._id)} className="flex-1">Remove</Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
-        {/* ── REVIEWS TAB ──────────────────────────────────── */}
-        {/* ── REVIEWS TAB ──────────────────────────────────── */}
-        {activeTab === "reviews" && <MyReviewsTab />}
-      </div>
-    </div>
+      {/* Reviews */}
+      {activeTab === "reviews" && <MyReviewsTab />}
+    </DashboardLayout>
   );
 };
 

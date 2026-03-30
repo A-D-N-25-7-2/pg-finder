@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -186,4 +188,86 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile, changePassword };
+// ─── FORGOT PASSWORD ──────────────────────────────────────────
+// POST /api/v1/auth/forgot-password
+const forgotPassword = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      // Don't reveal whether email exists
+      return res.status(200).json({
+        success: true,
+        message: "If that email is registered, a reset link has been sent.",
+      });
+    }
+
+    // Generate raw token and hash it for storage
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${process.env.CLIENT_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "PG Finder — Password Reset Request",
+      html: `
+        <h2>Password Reset</h2>
+        <p>You requested a password reset. Click the link below (valid for 10 minutes):</p>
+        <a href="${resetUrl}" style="padding:10px 20px;background:#4f46e5;color:#fff;border-radius:5px;text-decoration:none;">Reset Password</a>
+        <p>If you didn't request this, ignore this email.</p>
+      `,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "If that email is registered, a reset link has been sent.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ─── RESET PASSWORD ───────────────────────────────────────────
+// POST /api/v1/auth/reset-password/:token
+const resetPassword = async (req, res) => {
+  try {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    }).select("+resetPasswordToken +resetPasswordExpire");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired reset token",
+      });
+    }
+
+    if (!req.body.password || req.body.password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
+    }
+
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, updateProfile, changePassword, forgotPassword, resetPassword };

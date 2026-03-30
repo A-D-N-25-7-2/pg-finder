@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import API from "../api/axios";
 import { useAuth } from "../context/AuthContext";
+import { loginUser } from "../services/authService";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
@@ -18,12 +19,10 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const { data } = await API.post("/auth/login", formData);
+      const { data } = await loginUser(formData);
       login(data.user, data.token);
       toast.success(`Welcome back, ${data.user.name}!`);
-
       if (data.user.role === "admin") navigate("/admin/dashboard");
       else if (data.user.role === "owner") navigate("/owner/dashboard");
       else navigate("/dashboard");
@@ -35,90 +34,49 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <div className="min-h-screen bg-dark-base flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="absolute top-20 right-20 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-20 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl" />
+
+      <div className="relative bg-dark-card border border-dark-border p-8 rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
         {/* Logo */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-800">PG Finder</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Find your perfect home away from home
-          </p>
+        <div className="text-center mb-8">
+          <span className="text-4xl">🏠</span>
+          <h1 className="text-2xl font-bold gradient-text mt-2">PG Finder</h1>
+          <p className="text-gray-500 text-sm mt-1">Find your perfect home away from home</p>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">Welcome Back</h2>
+        <h2 className="text-xl font-bold text-white mb-1">Welcome Back</h2>
         <p className="text-gray-500 text-sm mb-6">Login to your account</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@example.com"
-              required
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Your password"
-              required
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-700 text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-800 disabled:opacity-50 transition"
-          >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8z"
-                  />
-                </svg>
-                Logging in...
-              </span>
-            ) : (
-              "Login"
-            )}
-          </button>
+          <Input
+            label="Email Address"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="john@example.com"
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Your password"
+            required
+          />
+          <Button type="submit" loading={loading} className="w-full">
+            Login
+          </Button>
         </form>
 
         <p className="text-center text-gray-500 mt-6 text-sm">
           Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="text-blue-700 font-semibold hover:underline"
-          >
+          <Link to="/register" className="text-blue-400 font-semibold hover:text-blue-300 transition-colors">
             Register here
           </Link>
         </p>

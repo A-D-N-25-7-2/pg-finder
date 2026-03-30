@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import API from "../api/axios";
 
 const AuthContext = createContext();
@@ -8,12 +8,35 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on app start
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-    setLoading(false);
+  const fetchUser = useCallback(async () => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const { data } = await API.get("/auth/me");
+      setUser(data.user);
+      setToken(storedToken);
+      localStorage.setItem("user", JSON.stringify(data.user));
+    } catch {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      setToken(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    // Try /me first; if it fails, fall back to localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try { setUser(JSON.parse(storedUser)); } catch { /* skip */ }
+    }
+    fetchUser();
+  }, [fetchUser]);
 
   const login = (userData, authToken) => {
     setUser(userData);
@@ -31,7 +54,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, logout, loading, isAuthenticated: !!token }}
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        loading,
+        isAuthenticated: !!token && !!user,
+        refreshUser: fetchUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

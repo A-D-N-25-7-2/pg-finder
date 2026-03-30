@@ -1,19 +1,17 @@
 const SkeletonCard = () => {
   return (
-    <div className="bg-white rounded-2xl shadow overflow-hidden animate-pulse">
-      {/* Image skeleton */}
-      <div className="h-48 bg-gray-200" />
-      {/* Content skeleton */}
+    <div className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden">
+      <div className="shimmer-bg h-48" />
       <div className="p-4 space-y-3">
         <div className="flex justify-between">
-          <div className="h-4 bg-gray-200 rounded w-2/3" />
-          <div className="h-4 bg-gray-200 rounded w-16" />
+          <div className="shimmer-bg h-4 w-2/3 rounded-lg" />
+          <div className="shimmer-bg h-4 w-16 rounded-lg" />
         </div>
-        <div className="h-3 bg-gray-200 rounded w-1/2" />
-        <div className="h-3 bg-gray-200 rounded w-1/3" />
+        <div className="shimmer-bg h-3 w-1/2 rounded-lg" />
+        <div className="shimmer-bg h-3 w-1/3 rounded-lg" />
         <div className="flex justify-between items-center pt-1">
-          <div className="h-5 bg-gray-200 rounded w-24" />
-          <div className="h-4 bg-gray-200 rounded w-12" />
+          <div className="shimmer-bg h-5 w-24 rounded-lg" />
+          <div className="shimmer-bg h-4 w-12 rounded-lg" />
         </div>
       </div>
     </div>

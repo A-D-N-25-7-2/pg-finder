@@ -12,10 +12,12 @@ createRoot(document.getElementById("root")).render(
       toastOptions={{
         duration: 3000,
         style: {
-          background: "#1e3a5f",
-          color: "#fff",
-          borderRadius: "10px",
+          background: "#1e293b",
+          color: "#f1f5f9",
+          borderRadius: "12px",
           fontSize: "14px",
+          border: "1px solid #334155",
+          boxShadow: "0 10px 40px rgba(0,0,0,0.4)",
         },
         success: {
           iconTheme: { primary: "#22c55e", secondary: "#fff" },
@@ -25,5 +27,5 @@ createRoot(document.getElementById("root")).render(
         },
       }}
     />
-  </StrictMode>,
+  </StrictMode>
 );

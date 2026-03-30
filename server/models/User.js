@@ -21,6 +21,8 @@ const UserSchema = new mongoose.Schema(
     profilePicture: { type: String, default: "" },
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Listing" }],
     isActive: { type: Boolean, default: true },
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpire: { type: Date, select: false },
   },
   { timestamps: true },
 );
