@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import Badge from "../ui/Badge";
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,8 +31,8 @@ const Navbar = () => {
   const navLinkClass = (path) =>
     `relative px-3 py-2 text-sm font-medium transition-colors duration-200 rounded-lg ${
       isActive(path)
-        ? "text-blue-400 bg-blue-500/10"
-        : "text-gray-400 hover:text-white hover:bg-white/5"
+        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10"
+        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
     }`;
 
   const NavLinks = ({ mobile = false }) => (
@@ -42,6 +44,15 @@ const Navbar = () => {
       >
         Search
       </Link>
+
+      {/* Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition text-xl"
+        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {isDark ? "☀️" : "🌙"}
+      </button>
 
       {isAuthenticated ? (
         <>
@@ -60,7 +71,7 @@ const Navbar = () => {
               </div>
               {!mobile && (
                 <div className="hidden md:block">
-                  <p className="text-sm font-medium text-gray-200 leading-none">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200 leading-none">
                     {user?.name?.split(" ")[0]}
                   </p>
                   <Badge status={user?.role} className="mt-0.5 scale-90 origin-left" />
@@ -69,7 +80,7 @@ const Navbar = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 text-xs font-semibold text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors"
+              className="px-3 py-1.5 text-xs font-semibold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-500/30 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
             >
               Logout
             </button>
@@ -113,7 +124,7 @@ const Navbar = () => {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+            className="md:hidden p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +140,7 @@ const Navbar = () => {
         {/* Mobile drawer */}
         {mobileOpen && (
           <div className="md:hidden pb-4 animate-slide-down">
-            <div className="flex flex-col gap-2 pt-2 border-t border-dark-border">
+            <div className="flex flex-col gap-2 pt-2 border-t border-gray-200 dark:border-dark-border">
               <NavLinks mobile />
             </div>
           </div>

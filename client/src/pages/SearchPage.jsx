@@ -59,8 +59,8 @@ const SearchPage = () => {
   };
 
   const FilterPanel = () => (
-    <div className="bg-dark-card border border-dark-border rounded-2xl p-6">
-      <h2 className="text-lg font-bold text-white mb-4">Filters</h2>
+    <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-6">
+      <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Filters</h2>
       <form onSubmit={handleSearch} className="space-y-4">
         <Input label="City" name="city" value={filters.city} onChange={handleFilterChange} placeholder="e.g. Bangalore" />
         <Input label="Type" type="select" name="type" value={filters.type} onChange={handleFilterChange}>
@@ -82,7 +82,7 @@ const SearchPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-dark-base">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-base">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Mobile filter toggle */}
         <div className="md:hidden mb-4">
@@ -100,7 +100,7 @@ const SearchPage = () => {
 
           {/* Listings */}
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               {listings.length > 0 ? `${listings.length} Listings Found` : "Search for Accommodations"}
             </h1>
 
@@ -111,7 +111,7 @@ const SearchPage = () => {
             )}
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">{error}</div>
+              <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 p-4 rounded-xl">{error}</div>
             )}
 
             {!loading && listings.length === 0 && (
@@ -123,26 +123,26 @@ const SearchPage = () => {
                 <div
                   key={listing._id}
                   onClick={() => navigate(`/listing/${listing._id}`)}
-                  className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden card-glow cursor-pointer group"
+                  className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl overflow-hidden card-glow cursor-pointer group"
                 >
-                  <div className="h-48 bg-dark-elevated overflow-hidden">
+                  <div className="h-48 bg-gray-100 dark:bg-dark-elevated overflow-hidden">
                     {listing.images?.[0] ? (
                       <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl text-gray-600">🏠</div>
+                      <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400 dark:text-gray-600">🏠</div>
                     )}
                   </div>
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-white text-sm leading-tight line-clamp-1">{listing.title}</h3>
+                      <h3 className="font-bold text-gray-900 dark:text-white text-sm leading-tight line-clamp-1">{listing.title}</h3>
                       <Badge status={listing.type} className="ml-2 shrink-0" />
                     </div>
-                    <p className="text-gray-500 text-sm mb-1">📍 {listing.city}</p>
-                    <p className="text-gray-500 text-sm mb-3">👤 {listing.gender}</p>
+                    <p className="text-gray-500 dark:text-gray-500 text-sm mb-1">📍 {listing.city}</p>
+                    <p className="text-gray-500 dark:text-gray-500 text-sm mb-3">👤 {listing.gender}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-blue-400 font-bold text-lg">₹{listing.rent?.toLocaleString()}/mo</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">₹{listing.rent?.toLocaleString()}/mo</span>
                       {listing.averageRating > 0 && (
-                        <span className="text-amber-400 text-sm font-medium">⭐ {listing.averageRating}</span>
+                        <span className="text-amber-500 dark:text-amber-400 text-sm font-medium">⭐ {listing.averageRating}</span>
                       )}
                     </div>
                   </div>
@@ -159,7 +159,7 @@ const SearchPage = () => {
                     className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                       filters.page === p
                         ? "gradient-primary text-white"
-                        : "bg-dark-card border border-dark-border text-gray-400 hover:text-white hover:border-gray-600"
+                        : "bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-gray-600"
                     }`}
                   >
                     {p}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Badge from "../ui/Badge";
 
@@ -9,9 +9,9 @@ const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange, title })
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-dark-base">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-base">
       {/* Top bar */}
-      <div className="glass-strong border-b border-dark-border sticky top-16 z-40">
+      <div className="glass-strong border-b border-gray-200 dark:border-dark-border sticky top-16 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -19,9 +19,9 @@ const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange, title })
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">{title}</h1>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h1>
                 <div className="flex items-center gap-2">
-                  <p className="text-gray-500 text-sm">{user?.name}</p>
+                  <p className="text-gray-500 dark:text-gray-500 text-sm">{user?.name}</p>
                   <Badge status={user?.role} />
                 </div>
               </div>
@@ -30,13 +30,13 @@ const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange, title })
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate("/search")}
-                className="hidden sm:flex px-3 py-1.5 text-xs font-medium text-gray-400 border border-dark-border rounded-lg hover:bg-white/5 transition-colors"
+                className="hidden sm:flex px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-dark-border rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
               >
                 Browse Site
               </button>
               <button
                 onClick={() => { logout(); navigate("/login"); }}
-                className="px-3 py-1.5 text-xs font-semibold text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/10 transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold text-red-500 dark:text-red-400 border border-red-300 dark:border-red-500/30 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
               >
                 Logout
               </button>
@@ -53,8 +53,8 @@ const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange, title })
                   className={`
                     px-4 py-2.5 text-sm font-medium rounded-t-xl transition-all whitespace-nowrap
                     ${activeTab === tab.key
-                      ? "bg-dark-card text-white border-t border-x border-blue-500/30"
-                      : "text-gray-500 hover:text-gray-300 hover:bg-white/5"
+                      ? "bg-white dark:bg-dark-card text-gray-900 dark:text-white border-t border-x border-blue-300 dark:border-blue-500/30"
+                      : "text-gray-500 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5"
                     }
                   `}
                 >

@@ -61,10 +61,7 @@ const AdminDashboard = () => {
   const fetchReviews = async () => {
     setReviewLoading(true);
     try {
-      // Fetch all reviews from all listings - admin can see all
       const { data } = await API.get("/admin/dashboard");
-      // We'll fetch reviews via a listing query if endpoint exists;
-      // for now show stats only. The admin can delete reviews from listing pages.
       setReviews([]);
     } catch (err) { console.error(err); }
     finally { setReviewLoading(false); }
@@ -131,7 +128,7 @@ const AdminDashboard = () => {
         <div>
           {loading ? <Spinner className="py-20" /> : (
             <>
-              <h2 className="text-xl font-bold text-white mb-4">Platform Overview</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Platform Overview</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <StatCard label="Total Users" value={stats?.totalUsers} icon="👤" color="blue" />
                 <StatCard label="Total Owners" value={stats?.totalOwners} icon="🏠" color="purple" />
@@ -143,7 +140,7 @@ const AdminDashboard = () => {
                 <StatCard label="Approved Bookings" value={stats?.approvedBookings} icon="🎉" color="cyan" />
               </div>
               <Card className="p-5">
-                <h3 className="font-bold text-white mb-3">Quick Actions</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                 <div className="flex gap-3 flex-wrap">
                   <Button variant="warning" size="sm" onClick={() => { setActiveTab("listings"); setListFilter("Pending"); }}>
                     ⏳ Review Pending ({stats?.pendingListings})
@@ -161,12 +158,12 @@ const AdminDashboard = () => {
       {activeTab === "listings" && (
         <div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-            <h2 className="text-xl font-bold text-white">Manage Listings</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Manage Listings</h2>
             <div className="flex gap-2 flex-wrap">
               {["Pending", "Active", "Rejected", "Inactive"].map(s => (
                 <button key={s} onClick={() => setListFilter(s)}
                   className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-                    listFilter === s ? "gradient-primary text-white" : "bg-dark-card border border-dark-border text-gray-400 hover:text-white"
+                    listFilter === s ? "gradient-primary text-white" : "bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                   }`}>{s}</button>
               ))}
             </div>
@@ -179,16 +176,16 @@ const AdminDashboard = () => {
               {listings.map(listing => (
                 <Card key={listing._id} className="p-4">
                   <div className="flex gap-4">
-                    <div className="w-24 h-20 bg-dark-elevated rounded-lg overflow-hidden shrink-0">
+                    <div className="w-24 h-20 bg-gray-100 dark:bg-dark-elevated rounded-lg overflow-hidden shrink-0">
                       {listing.images?.[0] ? <img src={listing.images[0]} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl">🏠</div>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div className="min-w-0">
-                          <h3 className="font-bold text-white text-sm cursor-pointer hover:text-blue-400 transition-colors truncate" onClick={() => navigate(`/listing/${listing._id}`)}>{listing.title}</h3>
-                          <p className="text-gray-500 text-xs">📍 {listing.address}, {listing.city}</p>
-                          <p className="text-gray-500 text-xs">👤 Owner: {listing.owner?.name} ({listing.owner?.email})</p>
-                          <p className="text-gray-500 text-xs">💰 ₹{listing.rent?.toLocaleString()}/mo • {listing.type} • {listing.gender}</p>
+                          <h3 className="font-bold text-gray-900 dark:text-white text-sm cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate" onClick={() => navigate(`/listing/${listing._id}`)}>{listing.title}</h3>
+                          <p className="text-gray-500 dark:text-gray-500 text-xs">📍 {listing.address}, {listing.city}</p>
+                          <p className="text-gray-500 dark:text-gray-500 text-xs">👤 Owner: {listing.owner?.name} ({listing.owner?.email})</p>
+                          <p className="text-gray-500 dark:text-gray-500 text-xs">💰 ₹{listing.rent?.toLocaleString()}/mo • {listing.type} • {listing.gender}</p>
                         </div>
                         <Badge status={listing.status} />
                       </div>
@@ -216,33 +213,33 @@ const AdminDashboard = () => {
       {/* ── Users ────────────────────────────────────────── */}
       {activeTab === "users" && (
         <div>
-          <h2 className="text-xl font-bold text-white mb-4">Manage Users</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Manage Users</h2>
           {userLoading ? <Spinner className="py-12" /> : (
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-dark-border">
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Name</th>
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Email</th>
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Role</th>
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Status</th>
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Joined</th>
-                      <th className="px-4 py-3 text-left text-gray-400 font-medium">Actions</th>
+                    <tr className="border-b border-gray-200 dark:border-dark-border">
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Name</th>
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Email</th>
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Role</th>
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Status</th>
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Joined</th>
+                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((u, i) => (
-                      <tr key={u._id} className={`border-b border-dark-border/50 ${i % 2 === 0 ? "bg-dark-card" : "bg-dark-base/30"}`}>
-                        <td className="px-4 py-3 font-medium text-white">{u.name}</td>
-                        <td className="px-4 py-3 text-gray-500">{u.email}</td>
+                      <tr key={u._id} className={`border-b border-gray-100 dark:border-dark-border/50 ${i % 2 === 0 ? "bg-white dark:bg-dark-card" : "bg-gray-50 dark:bg-dark-base/30"}`}>
+                        <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">{u.name}</td>
+                        <td className="px-4 py-3 text-gray-500 dark:text-gray-500">{u.email}</td>
                         <td className="px-4 py-3"><Badge status={u.role} /></td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${u.isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${u.isActive ? "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400"}`}>
                             {u.isActive ? "Active" : "Suspended"}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-500">{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
+                        <td className="px-4 py-3 text-gray-500 dark:text-gray-500">{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
                         <td className="px-4 py-3">
                           {u.role !== "admin" && (u.isActive
                             ? <Button size="sm" variant="danger" onClick={() => suspendUser(u._id)}>Suspend</Button>
@@ -262,7 +259,7 @@ const AdminDashboard = () => {
       {/* ── Bookings ─────────────────────────────────────── */}
       {activeTab === "bookings" && (
         <div>
-          <h2 className="text-xl font-bold text-white mb-4">All Bookings</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">All Bookings</h2>
           {bookingLoading ? <Spinner className="py-12" /> : bookings.length === 0 ? (
             <EmptyState icon="📅" title="No bookings found" />
           ) : (
@@ -271,11 +268,11 @@ const AdminDashboard = () => {
                 <Card key={booking._id} className="p-4">
                   <div className="flex justify-between items-start">
                     <div className="min-w-0">
-                      <h3 className="font-bold text-white text-sm">{booking.listing?.title}</h3>
-                      <p className="text-gray-500 text-xs">📍 {booking.listing?.city} — ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
-                      <p className="text-gray-500 text-xs">👤 Tenant: {booking.tenant?.name} ({booking.tenant?.email})</p>
-                      <p className="text-gray-500 text-xs">🏠 Owner: {booking.owner?.name} ({booking.owner?.email})</p>
-                      <p className="text-gray-500 text-xs">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString("en-IN")} • {booking.duration} month(s)</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white text-sm">{booking.listing?.title}</h3>
+                      <p className="text-gray-500 dark:text-gray-500 text-xs">📍 {booking.listing?.city} — ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
+                      <p className="text-gray-500 dark:text-gray-500 text-xs">👤 Tenant: {booking.tenant?.name} ({booking.tenant?.email})</p>
+                      <p className="text-gray-500 dark:text-gray-500 text-xs">🏠 Owner: {booking.owner?.name} ({booking.owner?.email})</p>
+                      <p className="text-gray-500 dark:text-gray-500 text-xs">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString("en-IN")} • {booking.duration} month(s)</p>
                     </div>
                     <Badge status={booking.status} />
                   </div>

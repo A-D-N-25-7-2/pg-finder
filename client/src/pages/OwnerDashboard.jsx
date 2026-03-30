@@ -12,6 +12,7 @@ import Modal from "../components/ui/Modal";
 import StatCard from "../components/ui/StatCard";
 import EmptyState from "../components/ui/EmptyState";
 import Spinner from "../components/ui/Spinner";
+import ImageUploader from "../components/ImageUploader";
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -27,6 +28,10 @@ const OwnerDashboard = () => {
     title: "", description: "", address: "", city: "", rent: "",
     type: "PG", gender: "Any", amenities: "", rules: "",
   });
+
+  // Image modal state
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState(null);
 
   const fetchListings = async () => {
     setListLoading(true);
@@ -88,6 +93,20 @@ const OwnerDashboard = () => {
     finally { setAddLoading(false); }
   };
 
+  const handleImagesUpdate = (newImages) => {
+    // Update the listings state
+    setListings(listings.map(l =>
+      l._id === selectedListing._id ? { ...l, images: newImages } : l
+    ));
+    // Update selectedListing so modal refreshes
+    setSelectedListing(prev => ({ ...prev, images: newImages }));
+  };
+
+  const openImageModal = (listing) => {
+    setSelectedListing(listing);
+    setImageModalOpen(true);
+  };
+
   const pendingCount = bookings.filter(b => b.status === "Pending").length;
   const tabs = [
     { key: "listings", label: "Listings", icon: "🏠" },
@@ -107,7 +126,7 @@ const OwnerDashboard = () => {
       {activeTab === "listings" && (
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-white">My Listings</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">My Listings</h2>
             <Button onClick={() => setShowAddModal(true)}>+ Add New Listing</Button>
           </div>
 
@@ -118,20 +137,26 @@ const OwnerDashboard = () => {
               {listings.map(listing => (
                 <Card key={listing._id} className="p-4">
                   <div className="flex gap-4">
-                    <div className="w-24 h-20 bg-dark-elevated rounded-lg overflow-hidden shrink-0">
+                    <div className="w-24 h-20 bg-gray-100 dark:bg-dark-elevated rounded-lg overflow-hidden shrink-0">
                       {listing.images?.[0] ? <img src={listing.images[0]} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl">🏠</div>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div className="min-w-0">
-                          <h3 className="font-bold text-white text-sm truncate">{listing.title}</h3>
-                          <p className="text-gray-500 text-xs">📍 {listing.city} • ₹{listing.rent?.toLocaleString()}/mo • {listing.type}</p>
-                          <p className="text-gray-600 text-xs mt-1">👁️ {listing.totalViews} views • ⭐ {listing.averageRating || 0}</p>
+                          <h3 className="font-bold text-gray-900 dark:text-white text-sm truncate">{listing.title}</h3>
+                          <p className="text-gray-500 dark:text-gray-500 text-xs">📍 {listing.city} • ₹{listing.rent?.toLocaleString()}/mo • {listing.type}</p>
+                          <p className="text-gray-400 dark:text-gray-600 text-xs mt-1">👁️ {listing.totalViews} views • ⭐ {listing.averageRating || 0}</p>
                         </div>
                         <Badge status={listing.status} />
                       </div>
                       <div className="flex gap-2 mt-3 flex-wrap">
                         <Button size="sm" variant="secondary" onClick={() => navigate(`/listing/${listing._id}`)}>👁️ View</Button>
+                        <button
+                          onClick={() => openImageModal(listing)}
+                          className="border border-purple-300 dark:border-purple-400 text-purple-600 dark:text-purple-400 px-3 py-1 rounded-lg text-xs font-medium hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors"
+                        >
+                          📷 Manage Images
+                        </button>
                         {(listing.status === "Active" || listing.status === "Inactive") && (
                           <Button size="sm" variant={listing.status === "Active" ? "warning" : "success"} onClick={() => toggleStatus(listing._id, listing.status)}>
                             {listing.status === "Active" ? "⏸️ Deactivate" : "▶️ Activate"}
@@ -152,7 +177,7 @@ const OwnerDashboard = () => {
       {/* Bookings Tab */}
       {activeTab === "bookings" && (
         <div>
-          <h2 className="text-lg font-bold text-white mb-4">Booking Requests</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Booking Requests</h2>
           {bookLoading ? <Spinner className="py-12" /> : bookings.length === 0 ? (
             <EmptyState icon="📋" title="No booking requests" description="Requests from tenants will appear here." />
           ) : (
@@ -161,25 +186,25 @@ const OwnerDashboard = () => {
                 <Card key={booking._id} className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-bold text-white text-sm">{booking.listing?.title}</h3>
-                      <p className="text-gray-500 text-xs">📍 {booking.listing?.city} • ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
+                      <h3 className="font-bold text-gray-900 dark:text-white text-sm">{booking.listing?.title}</h3>
+                      <p className="text-gray-500 dark:text-gray-500 text-xs">📍 {booking.listing?.city} • ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
                     </div>
                     <Badge status={booking.status} />
                   </div>
-                  <div className="bg-dark-elevated rounded-lg p-3 mb-3 border border-dark-border">
-                    <p className="font-semibold text-white text-sm">👤 {booking.tenant?.name}</p>
-                    <p className="text-gray-500 text-xs">✉️ {booking.tenant?.email}</p>
-                    {booking.tenant?.phone && <p className="text-gray-500 text-xs">📞 {booking.tenant.phone}</p>}
-                    <p className="text-gray-500 text-xs mt-1">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString("en-IN")} • {booking.duration} month(s)</p>
+                  <div className="bg-gray-50 dark:bg-dark-elevated rounded-lg p-3 mb-3 border border-gray-200 dark:border-dark-border">
+                    <p className="font-semibold text-gray-900 dark:text-white text-sm">👤 {booking.tenant?.name}</p>
+                    <p className="text-gray-500 dark:text-gray-500 text-xs">✉️ {booking.tenant?.email}</p>
+                    {booking.tenant?.phone && <p className="text-gray-500 dark:text-gray-500 text-xs">📞 {booking.tenant.phone}</p>}
+                    <p className="text-gray-500 dark:text-gray-500 text-xs mt-1">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString("en-IN")} • {booking.duration} month(s)</p>
                   </div>
                   {booking.message && (
-                    <div className="bg-dark-base rounded-lg p-3 mb-3 border border-dark-border">
-                      <p className="text-gray-400 text-sm italic">"{booking.message}"</p>
+                    <div className="bg-gray-100 dark:bg-dark-base rounded-lg p-3 mb-3 border border-gray-200 dark:border-dark-border">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm italic">"{booking.message}"</p>
                     </div>
                   )}
                   {booking.ownerResponse && (
-                    <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-3 mb-3">
-                      <p className="text-emerald-400 text-sm">Your response: {booking.ownerResponse}</p>
+                    <div className="bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-200 dark:border-emerald-500/10 rounded-lg p-3 mb-3">
+                      <p className="text-emerald-600 dark:text-emerald-400 text-sm">Your response: {booking.ownerResponse}</p>
                     </div>
                   )}
                   {booking.status === "Pending" && (
@@ -224,6 +249,37 @@ const OwnerDashboard = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Image Manager Modal */}
+      {imageModalOpen && selectedListing && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setImageModalOpen(false)}>
+          <div
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Manage Images</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{selectedListing.title}</p>
+              </div>
+              <button
+                onClick={() => setImageModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Image Uploader */}
+            <ImageUploader
+              listingId={selectedListing._id}
+              existingImages={selectedListing.images}
+              onUpdate={handleImagesUpdate}
+            />
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

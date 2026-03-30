@@ -72,13 +72,13 @@ const ReviewsSection = ({ listingId }) => {
 
   return (
     <div className="mt-6">
-      <div className="flex items-center justify-between mb-4 pb-1 border-b border-dark-border">
+      <div className="flex items-center justify-between mb-4 pb-1 border-b border-gray-200 dark:border-dark-border">
         <div>
-          <h2 className="text-lg font-bold text-white">Reviews & Ratings</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Reviews & Ratings</h2>
           {total > 0 && (
             <div className="flex items-center gap-2 mt-1">
               <StarRating rating={Math.round(averageRating)} readonly size="text-base" />
-              <span className="text-gray-500 text-sm">{averageRating} out of 5 ({total} {total === 1 ? "review" : "reviews"})</span>
+              <span className="text-gray-500 dark:text-gray-500 text-sm">{averageRating} out of 5 ({total} {total === 1 ? "review" : "reviews"})</span>
             </div>
           )}
         </div>
@@ -91,14 +91,14 @@ const ReviewsSection = ({ listingId }) => {
       </div>
 
       {showForm && (
-        <Card className="p-5 mb-6 border-blue-500/20">
-          <h3 className="font-bold text-white mb-4">Write Your Review</h3>
-          {formError && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-lg mb-3 text-sm">{formError}</div>}
+        <Card className="p-5 mb-6 border-blue-300 dark:border-blue-500/20">
+          <h3 className="font-bold text-gray-900 dark:text-white mb-4">Write Your Review</h3>
+          {formError && <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 px-4 py-2 rounded-lg mb-3 text-sm">{formError}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Your Rating</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Rating</label>
               <StarRating rating={rating} onRate={setRating} size="text-3xl" />
-              {rating > 0 && <p className="text-sm text-gray-500 mt-1">{["", "Poor", "Fair", "Good", "Very Good", "Excellent"][rating]}</p>}
+              {rating > 0 && <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">{["", "Poor", "Fair", "Good", "Very Good", "Excellent"][rating]}</p>}
             </div>
             <Input label="Your Review" type="textarea" value={comment} onChange={(e) => setComment(e.target.value)} rows={4} placeholder="Share your experience..." />
             <div className="flex gap-3">
@@ -110,9 +110,9 @@ const ReviewsSection = ({ listingId }) => {
       )}
 
       {loading ? <Spinner className="py-8" /> : reviews.length === 0 ? (
-        <div className="text-center py-10 text-gray-500">
+        <div className="text-center py-10 text-gray-500 dark:text-gray-500">
           <p className="text-4xl mb-3">💬</p>
-          <p className="text-lg font-medium text-gray-400">No reviews yet</p>
+          <p className="text-lg font-medium text-gray-600 dark:text-gray-400">No reviews yet</p>
           <p className="text-sm mt-1">Be the first to review this place!</p>
         </div>
       ) : (
@@ -136,21 +136,21 @@ const ReviewsSection = ({ listingId }) => {
                         {review.reviewer?.name?.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-semibold text-white text-sm">{review.reviewer?.name}</p>
-                        <p className="text-gray-600 text-xs">{formatDate(review.createdAt)}</p>
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm">{review.reviewer?.name}</p>
+                        <p className="text-gray-400 dark:text-gray-600 text-xs">{formatDate(review.createdAt)}</p>
                       </div>
                     </div>
                     {(user?.id === review.reviewer?._id || user?._id === review.reviewer?._id) ? (
                       <div className="flex gap-2">
-                        <button onClick={() => startEdit(review)} className="text-blue-400 text-xs hover:underline">Edit</button>
-                        <button onClick={() => handleDelete(review._id)} className="text-red-400 text-xs hover:underline">Delete</button>
+                        <button onClick={() => startEdit(review)} className="text-blue-600 dark:text-blue-400 text-xs hover:underline">Edit</button>
+                        <button onClick={() => handleDelete(review._id)} className="text-red-500 dark:text-red-400 text-xs hover:underline">Delete</button>
                       </div>
                     ) : user?.role === "admin" ? (
-                      <button onClick={() => handleDelete(review._id)} className="text-red-400 text-xs hover:underline">Remove</button>
+                      <button onClick={() => handleDelete(review._id)} className="text-red-500 dark:text-red-400 text-xs hover:underline">Remove</button>
                     ) : null}
                   </div>
                   <StarRating rating={review.rating} readonly size="text-base" />
-                  <p className="text-gray-400 text-sm mt-2 leading-relaxed">{review.comment}</p>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 leading-relaxed">{review.comment}</p>
                 </div>
               )}
             </Card>

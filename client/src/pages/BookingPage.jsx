@@ -45,14 +45,14 @@ const BookingPage = () => {
     } finally { setSubmitting(false); }
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-dark-base"><Spinner size="lg" /></div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-dark-base"><Spinner size="lg" /></div>;
 
   if (success) return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-base px-4">
-      <div className="bg-dark-card border border-dark-border rounded-2xl p-8 max-w-md w-full text-center animate-slide-up">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-base px-4">
+      <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-8 max-w-md w-full text-center animate-slide-up">
         <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-emerald-400 mb-2">Request Sent!</h2>
-        <p className="text-gray-400 mb-6">Your booking request has been sent to the owner. You will be notified once they respond.</p>
+        <h2 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">Request Sent!</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">Your booking request has been sent to the owner. You will be notified once they respond.</p>
         <div className="flex gap-3">
           <Button onClick={() => navigate("/dashboard")} className="flex-1">View My Requests</Button>
           <Button variant="secondary" onClick={() => navigate("/search")} className="flex-1">Browse More</Button>
@@ -62,11 +62,11 @@ const BookingPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-dark-base py-8 px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-base py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => navigate(-1)} className="mb-6 text-gray-400 hover:text-white font-medium transition-colors">← Back to listing</button>
+        <button onClick={() => navigate(-1)} className="mb-6 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors">← Back to listing</button>
 
-        <div className="bg-dark-card border border-dark-border rounded-2xl overflow-hidden animate-fade-in">
+        <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl overflow-hidden animate-fade-in">
           {listing && (
             <div className="gradient-primary p-6">
               <p className="text-blue-200 text-sm mb-1">Booking request for</p>
@@ -79,8 +79,8 @@ const BookingPage = () => {
           )}
 
           <div className="p-6">
-            <h3 className="text-lg font-bold text-white mb-6">Fill in your details</h3>
-            {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-4">{error}</div>}
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Fill in your details</h3>
+            {error && <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg mb-4">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input label="Preferred Move-in Date" type="date" name="moveInDate" value={formData.moveInDate} onChange={handleChange} required min={new Date().toISOString().split("T")[0]} />
@@ -92,19 +92,19 @@ const BookingPage = () => {
               <Input label="Message to Owner (optional)" type="textarea" name="message" value={formData.message} onChange={handleChange} rows={4} placeholder="Hi, I am interested in your PG..." />
 
               {listing && (
-                <div className="bg-dark-elevated border border-dark-border rounded-xl p-4 text-sm space-y-2">
-                  <h4 className="font-semibold text-white mb-2">Booking Summary</h4>
-                  <div className="flex justify-between text-gray-400"><span>Monthly Rent</span><span className="font-medium text-gray-300">₹{listing.rent?.toLocaleString()}</span></div>
-                  <div className="flex justify-between text-gray-400"><span>Duration</span><span className="font-medium text-gray-300">{formData.duration} month(s)</span></div>
-                  <div className="flex justify-between text-gray-300 border-t border-dark-border pt-2 mt-2">
+                <div className="bg-gray-50 dark:bg-dark-elevated border border-gray-200 dark:border-dark-border rounded-xl p-4 text-sm space-y-2">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Booking Summary</h4>
+                  <div className="flex justify-between text-gray-500 dark:text-gray-400"><span>Monthly Rent</span><span className="font-medium text-gray-700 dark:text-gray-300">₹{listing.rent?.toLocaleString()}</span></div>
+                  <div className="flex justify-between text-gray-500 dark:text-gray-400"><span>Duration</span><span className="font-medium text-gray-700 dark:text-gray-300">{formData.duration} month(s)</span></div>
+                  <div className="flex justify-between text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-dark-border pt-2 mt-2">
                     <span className="font-semibold">Estimated Total</span>
-                    <span className="font-bold text-blue-400">₹{(listing.rent * formData.duration).toLocaleString()}</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400">₹{(listing.rent * formData.duration).toLocaleString()}</span>
                   </div>
                 </div>
               )}
 
               <Button type="submit" loading={submitting} className="w-full" size="lg">📩 Send Booking Request</Button>
-              <p className="text-center text-gray-600 text-xs">Sending a request does not guarantee a booking.</p>
+              <p className="text-center text-gray-400 dark:text-gray-600 text-xs">Sending a request does not guarantee a booking.</p>
             </form>
           </div>
         </div>
