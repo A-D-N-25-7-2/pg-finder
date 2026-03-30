@@ -9,7 +9,7 @@ const StarRating = ({ rating = 0, onRate, readonly = false, size = "text-2xl" })
         <span
           key={star}
           className={`${size} transition-all duration-150 ${readonly ? "cursor-default" : "cursor-pointer hover:scale-110"}`}
-          style={{ color: (hovered || rating) >= star ? "#f59e0b" : "#374151" }}
+          style={{ color: (hovered || rating) >= star ? "#f59e0b" : "#d1d5db" }}
           onClick={() => !readonly && onRate?.(star)}
           onMouseEnter={() => !readonly && setHovered(star)}
           onMouseLeave={() => !readonly && setHovered(0)}

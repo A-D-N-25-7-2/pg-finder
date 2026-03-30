@@ -2,11 +2,11 @@ const variants = {
   primary:
     "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/20",
   secondary:
-    "border border-gray-600 text-gray-300 hover:bg-white/5 hover:border-gray-500",
+    "border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:border-gray-400 dark:hover:border-gray-500",
   danger:
     "bg-red-600/90 hover:bg-red-500 text-white shadow-lg shadow-red-500/20",
   ghost:
-    "text-gray-400 hover:text-white hover:bg-white/5",
+    "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5",
   success:
     "bg-emerald-600/90 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20",
   warning:

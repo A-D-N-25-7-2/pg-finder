@@ -102,7 +102,7 @@ const rejectListing = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Listing rejected",
-      reason: req.body.reason || "",
+      reason: req.body?.reason || "",
       listing,
     });
   } catch (error) {
@@ -174,7 +174,7 @@ const suspendUser = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "User suspended",
-      reason: req.body.reason || "",
+      reason: req.body?.reason || "",
       user: { id: user._id, name: user.name, email: user.email, isActive: user.isActive },
     });
   } catch (error) {

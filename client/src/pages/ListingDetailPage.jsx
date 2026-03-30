@@ -144,17 +144,17 @@ const ListingDetailPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2 space-y-6">
-                <div>
+                <div className="detail-section" style={{ animationDelay: '0.1s' }}>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2 pb-1 border-b border-gray-200 dark:border-dark-border">About this place</h2>
                   <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{listing.description}</p>
                 </div>
 
                 {listing.amenities?.length > 0 && (
-                  <div>
+                  <div className="detail-section" style={{ animationDelay: '0.2s' }}>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3 pb-1 border-b border-gray-200 dark:border-dark-border">Amenities</h2>
                     <div className="flex flex-wrap gap-2">
                       {listing.amenities.map((amenity, i) => (
-                        <span key={i} className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium">
+                        <span key={i} className="amenity-tag bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-sm font-medium cursor-default" style={{ animationDelay: `${0.25 + i * 0.05}s` }}>
                           ✓ {amenity}
                         </span>
                       ))}
@@ -163,7 +163,7 @@ const ListingDetailPage = () => {
                 )}
 
                 {listing.rules && (
-                  <div>
+                  <div className="detail-section" style={{ animationDelay: '0.3s' }}>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2 pb-1 border-b border-gray-200 dark:border-dark-border">House Rules</h2>
                     <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/10 rounded-xl p-4">
                       <p className="text-gray-700 dark:text-gray-300">📋 {listing.rules}</p>
@@ -171,7 +171,7 @@ const ListingDetailPage = () => {
                   </div>
                 )}
 
-                <div>
+                <div className="detail-section" style={{ animationDelay: '0.4s' }}>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2 pb-1 border-b border-gray-200 dark:border-dark-border">Location</h2>
                   <div className="bg-gray-100 dark:bg-dark-elevated rounded-xl h-48 flex items-center justify-center border border-gray-200 dark:border-dark-border">
                     <div className="text-center text-gray-500 dark:text-gray-500">

@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { DashboardProvider } from "./context/DashboardContext";
 import Navbar from "./components/layout/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Spinner from "./components/ui/Spinner";
@@ -31,29 +32,31 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          <Navbar />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/listing/:id" element={<ListingDetailPage />} />
+          <DashboardProvider>
+            <Navbar />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/listing/:id" element={<ListingDetailPage />} />
 
-              {/* User-only routes */}
-              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["user"]}><UserDashboard /></ProtectedRoute>} />
-              <Route path="/listing/:id/book" element={<ProtectedRoute allowedRoles={["user"]}><BookingPage /></ProtectedRoute>} />
+                {/* User-only routes */}
+                <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["user"]}><UserDashboard /></ProtectedRoute>} />
+                <Route path="/listing/:id/book" element={<ProtectedRoute allowedRoles={["user"]}><BookingPage /></ProtectedRoute>} />
 
-              {/* Owner-only routes */}
-              <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={["owner"]}><OwnerDashboard /></ProtectedRoute>} />
+                {/* Owner-only routes */}
+                <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={["owner"]}><OwnerDashboard /></ProtectedRoute>} />
 
-              {/* Admin-only routes */}
-              <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+                {/* Admin-only routes */}
+                <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
 
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </Suspense>
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
+          </DashboardProvider>
         </Router>
       </AuthProvider>
     </ThemeProvider>

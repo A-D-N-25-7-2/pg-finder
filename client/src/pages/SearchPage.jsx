@@ -59,7 +59,7 @@ const SearchPage = () => {
   };
 
   const FilterPanel = () => (
-    <div className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-6">
+    <div className="filter-panel bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-6">
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Filters</h2>
       <form onSubmit={handleSearch} className="space-y-4">
         <Input label="City" name="city" value={filters.city} onChange={handleFilterChange} placeholder="e.g. Bangalore" />
@@ -100,7 +100,7 @@ const SearchPage = () => {
 
           {/* Listings */}
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 animate-fade-in">
               {listings.length > 0 ? `${listings.length} Listings Found` : "Search for Accommodations"}
             </h1>
 
@@ -119,15 +119,16 @@ const SearchPage = () => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {listings.map((listing) => (
+              {listings.map((listing, index) => (
                 <div
                   key={listing._id}
                   onClick={() => navigate(`/listing/${listing._id}`)}
-                  className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl overflow-hidden card-glow cursor-pointer group"
+                  className="listing-card bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl overflow-hidden cursor-pointer"
+                  style={{ animationDelay: `${index * 0.08}s` }}
                 >
                   <div className="h-48 bg-gray-100 dark:bg-dark-elevated overflow-hidden">
                     {listing.images?.[0] ? (
-                      <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={listing.images[0]} alt={listing.title} className="listing-card-img w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400 dark:text-gray-600">🏠</div>
                     )}
@@ -135,12 +136,12 @@ const SearchPage = () => {
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-bold text-gray-900 dark:text-white text-sm leading-tight line-clamp-1">{listing.title}</h3>
-                      <Badge status={listing.type} className="ml-2 shrink-0" />
+                      <Badge status={listing.type} className="listing-card-badge ml-2 shrink-0" />
                     </div>
                     <p className="text-gray-500 dark:text-gray-500 text-sm mb-1">📍 {listing.city}</p>
                     <p className="text-gray-500 dark:text-gray-500 text-sm mb-3">👤 {listing.gender}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-blue-600 dark:text-blue-400 font-bold text-lg">₹{listing.rent?.toLocaleString()}/mo</span>
+                      <span className="listing-card-price text-blue-600 dark:text-blue-400 font-bold text-lg">₹{listing.rent?.toLocaleString()}/mo</span>
                       {listing.averageRating > 0 && (
                         <span className="text-amber-500 dark:text-amber-400 text-sm font-medium">⭐ {listing.averageRating}</span>
                       )}

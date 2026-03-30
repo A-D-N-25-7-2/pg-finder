@@ -13,15 +13,15 @@ const StatCard = ({ label, value, icon, trend, color = "blue" }) => {
       className={`
         bg-gradient-to-br ${colors[color]}
         border rounded-2xl p-5 transition-all duration-300
-        hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20
+        hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 dark:hover:shadow-black/20
       `}
     >
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-gray-400 text-sm font-medium">{label}</p>
-          <p className="text-3xl font-bold text-white mt-1">{value ?? "—"}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{label}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{value ?? "—"}</p>
           {trend && (
-            <p className={`text-xs mt-1 ${trend > 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <p className={`text-xs mt-1 ${trend > 0 ? "text-emerald-500 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}`}>
               {trend > 0 ? "↑" : "↓"} {Math.abs(trend)}%
             </p>
           )}

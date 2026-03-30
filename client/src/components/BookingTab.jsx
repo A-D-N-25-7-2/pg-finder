@@ -35,22 +35,22 @@ const BookingTab = () => {
       {bookings.map(booking => (
         <Card key={booking._id} className="p-4">
           <div className="flex gap-4">
-            <div className="w-24 h-20 bg-dark-elevated rounded-lg overflow-hidden shrink-0">
+            <div className="w-24 h-20 bg-gray-100 dark:bg-dark-elevated rounded-lg overflow-hidden shrink-0">
               {booking.listing?.images?.[0] ? (
                 <img src={booking.listing.images[0]} alt="" className="w-full h-full object-cover" />
               ) : <div className="w-full h-full flex items-center justify-center text-2xl">🏠</div>}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
-                <h3 className="font-bold text-white text-sm cursor-pointer hover:text-blue-400 transition-colors truncate" onClick={() => navigate(`/listing/${booking.listing?._id}`)}>
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate" onClick={() => navigate(`/listing/${booking.listing?._id}`)}>
                   {booking.listing?.title}
                 </h3>
                 <Badge status={booking.status} />
               </div>
-              <p className="text-gray-500 text-sm">📍 {booking.listing?.city} • ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
-              <p className="text-gray-500 text-sm">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString()} • {booking.duration} month(s)</p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">📍 {booking.listing?.city} • ₹{booking.listing?.rent?.toLocaleString()}/mo</p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm">📅 Move-in: {new Date(booking.moveInDate).toLocaleDateString()} • {booking.duration} month(s)</p>
               {booking.ownerResponse && (
-                <div className="mt-2 bg-dark-elevated border border-dark-border rounded-lg px-3 py-2 text-sm text-gray-400">
+                <div className="mt-2 bg-gray-100 dark:bg-dark-elevated border border-gray-200 dark:border-dark-border rounded-lg px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
                   💬 Owner: {booking.ownerResponse}
                 </div>
               )}

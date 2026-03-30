@@ -12,7 +12,7 @@ const Skeleton = ({ variant = "text", className = "", count = 1 }) => {
 
   if (variant === "card") {
     return (
-      <div className={`bg-dark-card border border-dark-border rounded-2xl overflow-hidden ${className}`}>
+      <div className={`bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl overflow-hidden ${className}`}>
         <div className="shimmer-bg h-48" />
         <div className="p-4 space-y-3">
           <div className="shimmer-bg h-5 w-3/4 rounded-lg" />
