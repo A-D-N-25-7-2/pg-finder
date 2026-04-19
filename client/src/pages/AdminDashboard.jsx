@@ -113,6 +113,18 @@ const AdminDashboard = () => {
     catch { toast.error("Failed to activate"); }
   };
 
+  const deleteUser = async (id, name) => {
+    if (!window.confirm(`⚠️ Permanently delete "${name}" and ALL their data (listings, bookings, reviews)?\n\nThis action cannot be undone.`)) return;
+    try {
+      await API.delete(`/admin/users/${id}`);
+      setUsers(users.filter(u => u._id !== id));
+      toast.success("User deleted permanently");
+      // Refresh stats
+      const { data } = await API.get("/admin/dashboard");
+      setStats(data.stats);
+    } catch (err) { toast.error(err.response?.data?.message || "Failed to delete user"); }
+  };
+
   const tabs = [
     { key: "dashboard", label: "Overview", icon: "📊" },
     { key: "listings", label: "Listings", icon: "🏠", count: stats?.pendingListings },
@@ -241,9 +253,14 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-4 py-3 text-gray-500 dark:text-gray-500">{new Date(u.createdAt).toLocaleDateString("en-IN")}</td>
                         <td className="px-4 py-3">
-                          {u.role !== "admin" && (u.isActive
-                            ? <Button size="sm" variant="danger" onClick={() => suspendUser(u._id)}>Suspend</Button>
-                            : <Button size="sm" variant="success" onClick={() => activateUser(u._id)}>Activate</Button>
+                          {u.role !== "admin" && (
+                            <div className="flex gap-2 flex-wrap">
+                              {u.isActive
+                                ? <Button size="sm" variant="warning" onClick={() => suspendUser(u._id)}>Suspend</Button>
+                                : <Button size="sm" variant="success" onClick={() => activateUser(u._id)}>Activate</Button>
+                              }
+                              <Button size="sm" variant="danger" onClick={() => deleteUser(u._id, u.name)}>🗑️ Delete</Button>
+                            </div>
                           )}
                         </td>
                       </tr>

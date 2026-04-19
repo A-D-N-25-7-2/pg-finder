@@ -1,6 +1,11 @@
 const Booking = require("../models/Booking");
 const Listing = require("../models/Listing");
+const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
+const sendEmail = require("../utils/sendEmail");
+const { newBookingRequestToOwner, bookingApprovedToTenant, bookingRejectedToTenant } = require("../utils/emailTemplates");
+
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
 const populate = [
   { path: "listing", select: "title address city rent type gender images" },
@@ -45,6 +50,30 @@ const createBooking = async (req, res) => {
     });
 
     await booking.populate(populate);
+
+    // ── Send email notification to the owner (fire-and-forget) ──
+    try {
+      const owner = await User.findById(listing.owner);
+      const tenant = await User.findById(req.user.id);
+      if (owner && tenant) {
+        const html = newBookingRequestToOwner({
+          ownerName: owner.name,
+          tenantName: tenant.name,
+          tenantEmail: tenant.email,
+          tenantPhone: tenant.phone || "",
+          listingTitle: listing.title,
+          listingCity: listing.city,
+          rent: listing.rent,
+          moveInDate,
+          duration,
+          message: message || "",
+          dashboardUrl: `${CLIENT_URL}/dashboard`,
+        });
+        sendEmail({ to: owner.email, subject: `📩 New Booking Request — ${listing.title}`, html }).catch((err) => console.error("Email to owner failed:", err.message));
+      }
+    } catch (emailErr) {
+      console.error("Email to owner failed:", emailErr.message);
+    }
 
     res.status(201).json({ success: true, message: "Booking request sent", booking });
   } catch (error) {
@@ -99,6 +128,32 @@ const approveBooking = async (req, res) => {
     await booking.save();
     await booking.populate(populate);
 
+    // ── Send approval email to the tenant (fire-and-forget) ──
+    try {
+      const tenant = await User.findById(booking.tenant._id || booking.tenant);
+      const owner = await User.findById(booking.owner._id || booking.owner);
+      const listingDoc = await Listing.findById(booking.listing._id || booking.listing);
+      if (tenant && owner && listingDoc) {
+        const html = bookingApprovedToTenant({
+          tenantName: tenant.name,
+          ownerName: owner.name,
+          ownerEmail: owner.email,
+          ownerPhone: owner.phone || "",
+          listingTitle: listingDoc.title,
+          listingCity: listingDoc.city,
+          listingAddress: listingDoc.address,
+          rent: listingDoc.rent,
+          moveInDate: booking.moveInDate,
+          duration: booking.duration,
+          ownerResponse: booking.ownerResponse || "",
+          listingUrl: `${CLIENT_URL}/listing/${listingDoc._id}`,
+        });
+        sendEmail({ to: tenant.email, subject: `🎉 Booking Approved — ${listingDoc.title}`, html }).catch((err) => console.error("Approval email failed:", err.message));
+      }
+    } catch (emailErr) {
+      console.error("Approval email failed:", emailErr.message);
+    }
+
     res.status(200).json({ success: true, message: "Booking approved", booking });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -123,6 +178,27 @@ const rejectBooking = async (req, res) => {
     if (req.body.ownerResponse) booking.ownerResponse = req.body.ownerResponse;
     await booking.save();
     await booking.populate(populate);
+
+    // ── Send rejection email to the tenant (fire-and-forget) ──
+    try {
+      const tenant = await User.findById(booking.tenant._id || booking.tenant);
+      const listingDoc = await Listing.findById(booking.listing._id || booking.listing);
+      if (tenant && listingDoc) {
+        const html = bookingRejectedToTenant({
+          tenantName: tenant.name,
+          listingTitle: listingDoc.title,
+          listingCity: listingDoc.city,
+          rent: listingDoc.rent,
+          moveInDate: booking.moveInDate,
+          duration: booking.duration,
+          ownerResponse: booking.ownerResponse || "",
+          searchUrl: `${CLIENT_URL}/search`,
+        });
+        sendEmail({ to: tenant.email, subject: `😔 Booking Update — ${listingDoc.title}`, html }).catch((err) => console.error("Rejection email failed:", err.message));
+      }
+    } catch (emailErr) {
+      console.error("Rejection email failed:", emailErr.message);
+    }
 
     res.status(200).json({ success: true, message: "Booking rejected", booking });
   } catch (error) {

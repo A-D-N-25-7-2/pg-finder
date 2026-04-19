@@ -10,20 +10,120 @@ const generateToken = (id) => {
   });
 };
 
-// ─── REGISTER ────────────────────────────────────────────────
+// ─── In-memory OTP store ──────────────────────────────────────
+// Map<email, { otp: string, expiresAt: number }>
+const otpStore = new Map();
+const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
+// Cleanup expired OTPs every 2 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, data] of otpStore) {
+    if (now > data.expiresAt) otpStore.delete(email);
+  }
+}, 2 * 60 * 1000);
+
+const otpEmailHtml = (otp) => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f6fb;font-family:'Segoe UI',Arial,sans-serif;">
+  <div style="max-width:480px;margin:32px auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+    <div style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);padding:32px 28px 24px;text-align:center;">
+      <h1 style="color:#ffffff;font-size:22px;margin:0 0 4px;font-weight:700;">🔐 Email Verification</h1>
+      <p style="color:rgba(255,255,255,0.85);font-size:13px;margin:0;">Your OTP for PG Finder registration</p>
+    </div>
+    <div style="padding:28px;text-align:center;">
+      <p style="color:#475569;font-size:14px;margin:0 0 20px;">Use the following 4-digit code to verify your email address. This code expires in <strong>5 minutes</strong>.</p>
+      <div style="display:inline-block;letter-spacing:12px;font-size:36px;font-weight:800;color:#1e293b;background:#f1f5f9;border:2px dashed #3b82f6;border-radius:12px;padding:16px 32px;margin:8px 0 20px;">${otp}</div>
+      <p style="color:#94a3b8;font-size:12px;margin:16px 0 0;">If you didn't request this, you can safely ignore this email.</p>
+    </div>
+    <div style="padding:16px 28px;text-align:center;border-top:1px solid #f1f5f9;">
+      <p style="color:#94a3b8;font-size:12px;margin:0;">© ${new Date().getFullYear()} PG Finder</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+// ─── SEND OTP ────────────────────────────────────────────────
+// POST /api/v1/auth/send-otp
+const sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "Email already registered" });
+    }
+
+    // Rate-limit: prevent spamming OTPs for same email (30s cooldown)
+    const existing = otpStore.get(email.toLowerCase());
+    if (existing && Date.now() - existing.createdAt < 30 * 1000) {
+      return res.status(429).json({ success: false, message: "OTP already sent. Please wait 30 seconds before requesting again." });
+    }
+
+    // Generate 4-digit OTP
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Store OTP
+    otpStore.set(email.toLowerCase(), {
+      otp,
+      expiresAt: Date.now() + OTP_EXPIRY_MS,
+      createdAt: Date.now(),
+    });
+
+    // Send OTP email
+    await sendEmail({
+      to: email,
+      subject: "🔐 PG Finder — Your Verification Code",
+      html: otpEmailHtml(otp),
+    });
+
+    res.status(200).json({ success: true, message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ─── REGISTER (with OTP verification) ────────────────────────
 // POST /api/v1/auth/register
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, phone } = req.body;
+    const { name, email, password, role, phone, otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ success: false, message: "OTP is required" });
+    }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({
         success: false,
         message: "Email already registered",
       });
     }
+
+    // Verify OTP
+    const storedOtp = otpStore.get(email.toLowerCase());
+    if (!storedOtp) {
+      return res.status(400).json({ success: false, message: "OTP expired or not found. Please request a new one." });
+    }
+    if (Date.now() > storedOtp.expiresAt) {
+      otpStore.delete(email.toLowerCase());
+      return res.status(400).json({ success: false, message: "OTP has expired. Please request a new one." });
+    }
+    if (storedOtp.otp !== otp.toString()) {
+      return res.status(400).json({ success: false, message: "Invalid OTP. Please check and try again." });
+    }
+
+    // OTP verified — remove from store
+    otpStore.delete(email.toLowerCase());
 
     // Create new user (password is hashed automatically in User model)
     const user = await User.create({ name, email, password, role, phone });
@@ -270,4 +370,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateProfile, changePassword, forgotPassword, resetPassword };
+module.exports = { sendOtp, register, login, getMe, updateProfile, changePassword, forgotPassword, resetPassword };

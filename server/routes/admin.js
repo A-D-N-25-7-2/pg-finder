@@ -9,6 +9,7 @@ const {
   getAllUsers,
   suspendUser,
   activateUser,
+  deleteUser,
   deleteReview,
   getAllBookings,
 } = require("../controllers/adminController");
@@ -30,6 +31,7 @@ router.delete("/listings/:id", deleteListing);
 router.get("/users", getAllUsers);
 router.put("/users/:id/suspend", suspendUser);
 router.put("/users/:id/activate", activateUser);
+router.delete("/users/:id", deleteUser);
 
 // ── Reviews ───────────────────────────────────────────────────
 router.delete("/reviews/:id", deleteReview);

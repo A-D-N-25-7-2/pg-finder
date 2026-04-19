@@ -248,6 +248,62 @@ const getAllBookings = async (req, res) => {
   }
 };
 
+// ─── DELETE USER (complete cleanup) ───────────────────────────
+// DELETE /api/v1/admin/users/:id
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user)
+      return res.status(404).json({ success: false, message: "User not found" });
+
+    if (user.role === "admin")
+      return res.status(403).json({ success: false, message: "Cannot delete an admin account" });
+
+    // If user is an owner, delete all their listings + cloudinary images
+    if (user.role === "owner") {
+      const ownerListings = await Listing.find({ owner: user._id });
+      for (const listing of ownerListings) {
+        // Delete images from Cloudinary
+        for (const imageUrl of listing.images) {
+          try {
+            const publicId = imageUrl.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`pg-hostel-finder/${publicId}`);
+          } catch (imgErr) {
+            console.error("Failed to delete cloudinary image:", imgErr.message);
+          }
+        }
+      }
+      // Delete all listings owned by this user
+      await Listing.deleteMany({ owner: user._id });
+      // Delete all bookings where this user is the owner
+      await Booking.deleteMany({ owner: user._id });
+    }
+
+    // Delete bookings where user is the tenant
+    await Booking.deleteMany({ tenant: user._id });
+
+    // Delete reviews by this user
+    // Use findOneAndDelete in a loop so post hooks (recalcRating) fire
+    const userReviews = await Review.find({ user: user._id });
+    for (const review of userReviews) {
+      await Review.findOneAndDelete({ _id: review._id });
+    }
+
+    // Remove this user from other users' wishlists (cleanup references)
+    // (wishlists reference listings, not users, so no action needed)
+
+    // Finally, delete the user
+    await user.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: `User "${user.name}" (${user.email}) and all associated data deleted successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getDashboard,
   getAllListings,
@@ -257,6 +313,7 @@ module.exports = {
   getAllUsers,
   suspendUser,
   activateUser,
+  deleteUser,
   deleteReview,
   getAllBookings,
 };

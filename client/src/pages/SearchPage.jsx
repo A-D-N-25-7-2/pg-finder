@@ -58,7 +58,7 @@ const SearchPage = () => {
     fetchListings();
   };
 
-  const FilterPanel = () => (
+  const filterPanelContent = (
     <div className="filter-panel bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-6">
       <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Filters</h2>
       <form onSubmit={handleSearch} className="space-y-4">
@@ -89,13 +89,13 @@ const SearchPage = () => {
           <Button variant="secondary" onClick={() => setMobileFilters(!mobileFilters)} className="w-full">
             {mobileFilters ? "Hide Filters" : "Show Filters"}
           </Button>
-          {mobileFilters && <div className="mt-4"><FilterPanel /></div>}
+          {mobileFilters && <div className="mt-4">{filterPanelContent}</div>}
         </div>
 
         <div className="flex gap-6">
           {/* Sidebar — desktop */}
           <div className="hidden md:block w-64 shrink-0">
-            <FilterPanel />
+            {filterPanelContent}
           </div>
 
           {/* Listings */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import toast from "react-hot-toast";
@@ -17,7 +17,7 @@ import ImageUploader from "../components/ImageUploader";
 const OwnerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("listings");
+  const [activeTab, setActiveTab] = useState("profile");
   const [listings, setListings] = useState([]);
   const [listLoading, setListLoading] = useState(false);
   const [bookings, setBookings] = useState([]);
@@ -28,6 +28,10 @@ const OwnerDashboard = () => {
     title: "", description: "", address: "", city: "", rent: "",
     type: "PG", gender: "Any", amenities: "", rules: "",
   });
+
+  // Images to upload with new listing (optional)
+  const [newListingImages, setNewListingImages] = useState([]);
+  const newListingFileRef = useRef(null);
 
   // Image modal state
   const [imageModalOpen, setImageModalOpen] = useState(false);
@@ -75,6 +79,31 @@ const OwnerDashboard = () => {
     catch (err) { toast.error(err.response?.data?.message || "Failed to reject"); }
   };
 
+  // ── Handle new listing image selection (before creation) ──
+  const handleNewListingImageSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const invalidFiles = files.filter((f) => f.size > 5 * 1024 * 1024);
+    if (invalidFiles.length > 0) {
+      toast.error(`${invalidFiles.length} file(s) exceed 5MB limit.`);
+      return;
+    }
+
+    if (newListingImages.length + files.length > 10) {
+      toast.error(`Maximum 10 images allowed. Currently ${newListingImages.length} selected.`);
+      return;
+    }
+
+    setNewListingImages((prev) => [...prev, ...files]);
+    if (newListingFileRef.current) newListingFileRef.current.value = "";
+  };
+
+  const removeNewListingImage = (index) => {
+    setNewListingImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ── Create listing (optionally with images) ──
   const handleAddListing = async (e) => {
     e.preventDefault();
     setAddLoading(true);
@@ -84,21 +113,36 @@ const OwnerDashboard = () => {
         rent: Number(newListing.rent),
         amenities: newListing.amenities.split(",").map(a => a.trim()).filter(Boolean),
       };
-      await API.post("/listings", payload);
+      const { data } = await API.post("/listings", payload);
+      const createdListing = data.listing;
+
+      // If images were selected, upload them to the newly created listing
+      if (newListingImages.length > 0) {
+        const formData = new FormData();
+        newListingImages.forEach((file) => formData.append("images", file));
+        try {
+          await API.post(`/listings/${createdListing._id}/images`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+        } catch (imgErr) {
+          console.error("Image upload failed:", imgErr);
+          toast.error("Listing created but image upload failed. You can add images later.");
+        }
+      }
+
       toast.success("Listing created! Pending admin approval.");
       setShowAddModal(false);
       setNewListing({ title: "", description: "", address: "", city: "", rent: "", type: "PG", gender: "Any", amenities: "", rules: "" });
+      setNewListingImages([]);
       fetchListings();
     } catch (err) { toast.error(err.response?.data?.message || "Failed to create listing"); }
     finally { setAddLoading(false); }
   };
 
   const handleImagesUpdate = (newImages) => {
-    // Update the listings state
     setListings(listings.map(l =>
       l._id === selectedListing._id ? { ...l, images: newImages } : l
     ));
-    // Update selectedListing so modal refreshes
     setSelectedListing(prev => ({ ...prev, images: newImages }));
   };
 
@@ -109,6 +153,7 @@ const OwnerDashboard = () => {
 
   const pendingCount = bookings.filter(b => b.status === "Pending").length;
   const tabs = [
+    { key: "profile", label: "Profile", icon: "👤" },
     { key: "listings", label: "Listings", icon: "🏠" },
     { key: "bookings", label: "Bookings", icon: "📋", count: pendingCount },
   ];
@@ -122,7 +167,36 @@ const OwnerDashboard = () => {
         <StatCard label="Pending Requests" value={pendingCount} icon="⏳" color="orange" />
       </div>
 
-      {/* Listings Tab */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* Profile Tab                                           */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {activeTab === "profile" && (
+        <Card className="p-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Profile Information</h2>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{user?.name}</p>
+              <p className="text-gray-500 dark:text-gray-500">{user?.email}</p>
+              <Badge status={user?.role} className="mt-1" />
+            </div>
+          </div>
+          <div className="border-t border-gray-200 dark:border-dark-border pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><p className="text-gray-500 dark:text-gray-500">Full Name</p><p className="font-medium text-gray-700 dark:text-gray-300">{user?.name}</p></div>
+              <div><p className="text-gray-500 dark:text-gray-500">Email</p><p className="font-medium text-gray-700 dark:text-gray-300">{user?.email}</p></div>
+              {user?.phone && <div><p className="text-gray-500 dark:text-gray-500">Phone</p><p className="font-medium text-gray-700 dark:text-gray-300">{user.phone}</p></div>}
+              <div><p className="text-gray-500 dark:text-gray-500">Role</p><p className="font-medium text-gray-700 dark:text-gray-300 capitalize">{user?.role}</p></div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* Listings Tab                                          */}
+      {/* ═══════════════════════════════════════════════════════ */}
       {activeTab === "listings" && (
         <div>
           <div className="flex justify-between items-center mb-4">
@@ -174,7 +248,9 @@ const OwnerDashboard = () => {
         </div>
       )}
 
-      {/* Bookings Tab */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* Bookings Tab                                          */}
+      {/* ═══════════════════════════════════════════════════════ */}
       {activeTab === "bookings" && (
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Booking Requests</h2>
@@ -220,8 +296,10 @@ const OwnerDashboard = () => {
         </div>
       )}
 
-      {/* Add Listing Modal */}
-      <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add New Listing" size="lg">
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* Add Listing Modal                                     */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <Modal isOpen={showAddModal} onClose={() => { setShowAddModal(false); setNewListingImages([]); }} title="Add New Listing" size="lg">
         <form onSubmit={handleAddListing} className="space-y-4">
           <Input label="Title" value={newListing.title} onChange={e => setNewListing({ ...newListing, title: e.target.value })} placeholder="e.g. Sunny PG near Metro Station" required />
           <Input label="Description" type="textarea" rows={3} value={newListing.description} onChange={e => setNewListing({ ...newListing, description: e.target.value })} placeholder="Describe your PG/Hostel..." required />
@@ -243,18 +321,63 @@ const OwnerDashboard = () => {
           </div>
           <Input label="Amenities (comma separated)" value={newListing.amenities} onChange={e => setNewListing({ ...newListing, amenities: e.target.value })} placeholder="WiFi, AC, Laundry, Parking" />
           <Input label="House Rules" type="textarea" rows={2} value={newListing.rules} onChange={e => setNewListing({ ...newListing, rules: e.target.value })} placeholder="No smoking, no pets..." />
+
+          {/* ── Image upload section (optional) ── */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Images <span className="text-gray-400 dark:text-gray-600 font-normal">(optional — you can add later too)</span>
+            </label>
+
+            <div className="flex flex-wrap gap-2 mb-2">
+              {newListingImages.map((file, idx) => (
+                <div key={idx} className="relative group w-20 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-dark-border bg-gray-100 dark:bg-dark-elevated">
+                  <img src={URL.createObjectURL(file)} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeNewListingImage(idx)}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {newListingImages.length < 10 && (
+                <button
+                  type="button"
+                  onClick={() => newListingFileRef.current?.click()}
+                  className="w-20 h-16 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 bg-gray-50 dark:bg-dark-elevated/50 flex flex-col items-center justify-center gap-0.5 transition-all hover:bg-blue-50 dark:hover:bg-blue-500/5"
+                >
+                  <span className="text-lg text-gray-400 dark:text-gray-500">+</span>
+                  <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Add</span>
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={newListingFileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={handleNewListingImageSelect}
+              className="hidden"
+            />
+            <p className="text-xs text-gray-400 dark:text-gray-500">JPG, PNG, WebP • Max 5MB each • Up to 10 images</p>
+          </div>
+
           <div className="flex gap-3 pt-2">
             <Button type="submit" loading={addLoading} className="flex-1">Create Listing</Button>
-            <Button type="button" variant="secondary" onClick={() => setShowAddModal(false)} className="flex-1">Cancel</Button>
+            <Button type="button" variant="secondary" onClick={() => { setShowAddModal(false); setNewListingImages([]); }} className="flex-1">Cancel</Button>
           </div>
         </form>
       </Modal>
 
-      {/* Image Manager Modal */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* Image Manager Modal                                   */}
+      {/* ═══════════════════════════════════════════════════════ */}
       {imageModalOpen && selectedListing && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setImageModalOpen(false)}>
           <div
-            className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-2xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -265,7 +388,7 @@ const OwnerDashboard = () => {
               </div>
               <button
                 onClick={() => setImageModalOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors text-lg"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-dark-elevated text-gray-500 dark:text-gray-400 transition-colors text-lg"
               >
                 ✕
               </button>
