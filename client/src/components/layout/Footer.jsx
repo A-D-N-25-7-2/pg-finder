@@ -40,8 +40,8 @@ const Footer = () => {
               Contact
             </h3>
             <div className="flex flex-col gap-2 text-gray-500 dark:text-gray-500 text-sm">
-              <span>support@pgfinder.com</span>
-              <span>+91 98765 43210</span>
+              <span>talpadadev42@gmail.com</span>
+              <span>+91 9106286479</span>
               <span>Built with MERN Stack</span>
             </div>
           </div>
@@ -52,7 +52,7 @@ const Footer = () => {
             © {new Date().getFullYear()} PG Finder. All rights reserved.
           </p>
           <p className="text-gray-400 dark:text-gray-600 text-xs">
-            Made with ❤️ for students and working professionals
+            Made for students and working professionals
           </p>
         </div>
       </div>

@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem("pgfinder-theme");
-    return saved ? saved === "dark" : true; // default dark since the app is dark-first
+    return saved ? saved === "dark" : true;
   });
 
   useEffect(() => {
