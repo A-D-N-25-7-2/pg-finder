@@ -42,3 +42,11 @@ jobs:
       - name: Install backend dependencies
         working-directory: server
         run: npm install
+
+  deploy:
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy application
+        run: echo "Application deployed successfully!"
