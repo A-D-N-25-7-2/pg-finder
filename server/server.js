@@ -14,10 +14,15 @@ const app = express();
 app.use(helmet());
 
 // ── CORS — allow only frontend origin ────────────────────────
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin:
+      process.env.CLIENT_URL ||
+      "http://localhost:5173" ||
+      "https://pg-finder-bay.vercel.app",
+    credentials: true,
+  }),
+);
 
 // ── Body parsers ──────────────────────────────────────────────
 app.use(express.json());
