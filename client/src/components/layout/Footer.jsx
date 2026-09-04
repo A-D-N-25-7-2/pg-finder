@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import AppIcon from "../ui/AppIcon";
 
 const Footer = () => {
   return (
@@ -8,11 +9,12 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🏠</span>
+              <AppIcon name="home" size={28} className="text-blue-600" />
               <span className="text-xl font-bold gradient-text">PG Finder</span>
             </Link>
             <p className="text-gray-500 dark:text-gray-500 text-sm leading-relaxed">
-              Discover verified PG accommodations and hostels across India. Search, compare, and book with confidence.
+              Discover verified PG accommodations and hostels across India.
+              Search, compare, and book with confidence.
             </p>
           </div>
 
@@ -22,13 +24,22 @@ const Footer = () => {
               Quick Links
             </h3>
             <div className="flex flex-col gap-2">
-              <Link to="/search" className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Link
+                to="/search"
+                className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
                 Search PGs
               </Link>
-              <Link to="/register" className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Link
+                to="/register"
+                className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
                 List Your Property
               </Link>
-              <Link to="/login" className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Link
+                to="/login"
+                className="text-gray-500 dark:text-gray-500 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
                 Login
               </Link>
             </div>

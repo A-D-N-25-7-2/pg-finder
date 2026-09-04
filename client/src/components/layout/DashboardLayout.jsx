@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useDashboard } from "../../context/DashboardContext";
 
 const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange }) => {
-  const { registerDashboard, unregisterDashboard, updateActiveTab } = useDashboard();
+  const { registerDashboard, unregisterDashboard, updateActiveTab } =
+    useDashboard();
 
   // Register tabs with context so Navbar can display them
   useEffect(() => {
@@ -14,6 +15,10 @@ const DashboardLayout = ({ children, tabs = [], activeTab, onTabChange }) => {
   useEffect(() => {
     updateActiveTab(activeTab);
   }, [activeTab, updateActiveTab]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-base">

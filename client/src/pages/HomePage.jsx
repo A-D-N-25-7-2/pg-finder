@@ -1,19 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/layout/Footer";
+import AppIcon from "../components/ui/AppIcon";
 
 const features = [
-  { icon: "🔍", title: "Easy Search", desc: "Find PGs by city, budget, and preferences in seconds" },
-  { icon: "✅", title: "Verified Listings", desc: "All listings are reviewed and approved by our admin team" },
-  { icon: "💬", title: "Direct Contact", desc: "Connect directly with owners — no middlemen involved" },
-  { icon: "⭐", title: "Honest Reviews", desc: "Read real reviews from verified tenants before deciding" },
+  {
+    icon: "search",
+    title: "Easy Search",
+    desc: "Find PGs by city, budget, and preferences in seconds",
+  },
+  {
+    icon: "verified",
+    title: "Verified Listings",
+    desc: "All listings are reviewed and approved by our admin team",
+  },
+  {
+    icon: "message",
+    title: "Direct Contact",
+    desc: "Connect directly with owners — no middlemen involved",
+  },
+  {
+    icon: "rating",
+    title: "Honest Reviews",
+    desc: "Read real reviews from verified tenants before deciding",
+  },
 ];
 
 const stats = [
   { value: "500+", label: "Listed Properties" },
   { value: "1000+", label: "Happy Tenants" },
   { value: "50+", label: "Cities Covered" },
-  { value: "4.8⭐", label: "Average Rating" },
+  { value: "4.8", label: "Average Rating" },
 ];
 
 const HomePage = () => {
@@ -42,8 +59,8 @@ const HomePage = () => {
               <span className="gradient-text">PG or Hostel</span>
             </h1>
             <p className="text-gray-500 dark:text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-              Thousands of verified accommodations across India — search, compare,
-              and book with confidence.
+              Thousands of verified accommodations across India — search,
+              compare, and book with confidence.
             </p>
           </div>
 
@@ -53,8 +70,18 @@ const HomePage = () => {
             className="max-w-xl mx-auto flex gap-2 glass rounded-2xl p-2 animate-slide-up"
           >
             <div className="flex-1 flex items-center gap-3 px-4">
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 type="text"
@@ -73,7 +100,10 @@ const HomePage = () => {
           </form>
 
           {/* Quick filter chips */}
-          <div className="flex gap-2 justify-center flex-wrap mt-8 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+          <div
+            className="flex gap-2 justify-center flex-wrap mt-8 animate-fade-in"
+            style={{ animationDelay: "0.3s" }}
+          >
             {["Bangalore", "Mumbai", "Pune", "Delhi", "Hyderabad"].map((c) => (
               <button
                 key={c}
@@ -91,9 +121,17 @@ const HomePage = () => {
       <div className="border-y border-gray-200 dark:border-dark-border bg-gray-50 dark:bg-dark-card/50">
         <div className="max-w-5xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {stats.map((stat, i) => (
-            <div key={stat.label} className={`animate-fade-in stagger-${i + 1}`} style={{ opacity: 0 }}>
-              <p className="text-3xl md:text-4xl font-black gradient-text">{stat.value}</p>
-              <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">{stat.label}</p>
+            <div
+              key={stat.label}
+              className={`animate-fade-in stagger-${i + 1}`}
+              style={{ opacity: 0 }}
+            >
+              <p className="text-3xl md:text-4xl font-black gradient-text">
+                {stat.value}
+              </p>
+              <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
@@ -109,17 +147,37 @@ const HomePage = () => {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
-            { type: "PG", icon: "🏠", desc: "Paying Guest accommodation with shared facilities", gradient: "from-blue-600/20 to-blue-800/20 hover:from-blue-600/30 hover:to-blue-800/30 border-blue-500/20" },
-            { type: "Hostel", icon: "🛏️", desc: "Dormitory style accommodation for budget travellers", gradient: "from-purple-600/20 to-purple-800/20 hover:from-purple-600/30 hover:to-purple-800/30 border-purple-500/20" },
+            {
+              type: "PG",
+              icon: "home",
+              desc: "Paying Guest accommodation with shared facilities",
+              gradient:
+                "from-blue-600/20 to-blue-800/20 hover:from-blue-600/30 hover:to-blue-800/30 border-blue-500/20",
+            },
+            {
+              type: "Hostel",
+              icon: "bed",
+              desc: "Dormitory style accommodation for budget travellers",
+              gradient:
+                "from-purple-600/20 to-purple-800/20 hover:from-purple-600/30 hover:to-purple-800/30 border-purple-500/20",
+            },
           ].map((item) => (
             <button
               key={item.type}
               onClick={() => navigate(`/search?type=${item.type}`)}
               className={`bg-gradient-to-br ${item.gradient} border rounded-2xl p-8 text-left transition-all hover:scale-[1.02] group`}
             >
-              <p className="text-5xl mb-4">{item.icon}</p>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{item.type}</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">{item.desc}</p>
+              <AppIcon
+                name={item.icon}
+                size={48}
+                className="text-blue-500 mb-4"
+              />
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {item.type}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                {item.desc}
+              </p>
               <p className="mt-4 font-semibold text-blue-600 dark:text-blue-400 group-hover:text-blue-500 dark:group-hover:text-blue-300 transition-colors">
                 Browse {item.type}s →
               </p>
@@ -136,16 +194,38 @@ const HomePage = () => {
           </h2>
           <div className="flex gap-4 justify-center flex-wrap">
             {[
-              { label: "Male PGs", gender: "Male", icon: "👨", color: "border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10" },
-              { label: "Female PGs", gender: "Female", icon: "👩", color: "border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-500/10" },
-              { label: "Any Gender", gender: "Any", icon: "🤝", color: "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10" },
+              {
+                label: "Male PGs",
+                gender: "Male",
+                icon: "👨",
+                color:
+                  "border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10",
+              },
+              {
+                label: "Female PGs",
+                gender: "Female",
+                icon: "👩",
+                color:
+                  "border-pink-500/30 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-500/10",
+              },
+              {
+                label: "Any Gender",
+                gender: "Any",
+                icon: "🤝",
+                color:
+                  "border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10",
+              },
             ].map((item) => (
               <button
                 key={item.gender}
                 onClick={() => navigate(`/search?gender=${item.gender}`)}
                 className={`border-2 ${item.color} px-8 py-4 rounded-2xl font-semibold transition-all text-lg hover:scale-105`}
               >
-                <span className="text-2xl mr-2">{item.icon}</span>
+                <AppIcon
+                  name={item.icon}
+                  size={24}
+                  className="mr-2 text-blue-500 inline"
+                />
                 {item.label}
               </button>
             ))}
@@ -169,8 +249,12 @@ const HomePage = () => {
               style={{ opacity: 0 }}
             >
               <p className="text-4xl mb-4">{f.icon}</p>
-              <h3 className="font-bold text-gray-900 dark:text-white mb-2">{f.title}</h3>
-              <p className="text-gray-500 dark:text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+                {f.title}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-500 text-sm leading-relaxed">
+                {f.desc}
+              </p>
             </div>
           ))}
         </div>

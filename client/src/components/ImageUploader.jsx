@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import API from "../api/axios";
 import toast from "react-hot-toast";
+import AppIcon from "./ui/AppIcon";
 
 const ImageUploader = ({ listingId, existingImages = [], onUpdate }) => {
   const [uploading, setUploading] = useState(false);
@@ -18,14 +19,16 @@ const ImageUploader = ({ listingId, existingImages = [], onUpdate }) => {
     const invalidFiles = files.filter((f) => f.size > 5 * 1024 * 1024);
     if (invalidFiles.length > 0) {
       toast.error(
-        `${invalidFiles.length} file(s) exceed 5MB limit. Please select smaller files.`
+        `${invalidFiles.length} file(s) exceed 5MB limit. Please select smaller files.`,
       );
       return;
     }
 
     // Check max images
     if (images.length + files.length > 10) {
-      toast.error(`You can only have up to 10 images. Currently ${images.length} uploaded.`);
+      toast.error(
+        `You can only have up to 10 images. Currently ${images.length} uploaded.`,
+      );
       return;
     }
 
@@ -34,9 +37,13 @@ const ImageUploader = ({ listingId, existingImages = [], onUpdate }) => {
 
     setUploading(true);
     try {
-      const { data } = await API.post(`/listings/${listingId}/images`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const { data } = await API.post(
+        `/listings/${listingId}/images`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
       toast.success("Images uploaded!");
       if (onUpdate) onUpdate(data.images);
     } catch (err) {
@@ -92,12 +99,27 @@ const ImageUploader = ({ listingId, existingImages = [], onUpdate }) => {
               title="Delete image"
             >
               {deleting === img ? (
-                <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="w-3.5 h-3.5 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
               ) : (
-                "✕"
+                <AppIcon name="close" size={12} />
               )}
             </button>
           </div>
@@ -112,16 +134,37 @@ const ImageUploader = ({ listingId, existingImages = [], onUpdate }) => {
           >
             {uploading ? (
               <>
-                <svg className="w-8 h-8 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                <svg
+                  className="w-8 h-8 animate-spin text-blue-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
                 </svg>
-                <span className="text-xs font-medium text-blue-500">Uploading...</span>
+                <span className="text-xs font-medium text-blue-500">
+                  Uploading...
+                </span>
               </>
             ) : (
               <>
-                <span className="text-3xl text-gray-400 dark:text-gray-500">+</span>
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Add Images</span>
+                <span className="text-3xl text-gray-400 dark:text-gray-500">
+                  +
+                </span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Add Images
+                </span>
               </>
             )}
           </button>

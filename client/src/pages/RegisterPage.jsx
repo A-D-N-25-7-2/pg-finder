@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
+import AppIcon from "../components/ui/AppIcon";
 import { registerUser, sendOtp } from "../services/authService";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
@@ -14,7 +15,11 @@ const RegisterPage = () => {
   const [step, setStep] = useState("form");
 
   const [formData, setFormData] = useState({
-    name: "", email: "", password: "", role: "user", phone: "",
+    name: "",
+    email: "",
+    password: "",
+    role: "user",
+    phone: "",
   });
 
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -83,7 +88,10 @@ const RegisterPage = () => {
 
   const handleOtpPaste = (e) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 4);
     if (pasted.length === 4) {
       const digits = pasted.split("");
       setOtp(digits);
@@ -140,13 +148,19 @@ const RegisterPage = () => {
         <div className="text-center mb-8">
           <span className="text-4xl">🏠</span>
           <h1 className="text-2xl font-bold gradient-text mt-2">PG Finder</h1>
-          <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">Find your perfect home away from home</p>
+          <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">
+            Find your perfect home away from home
+          </p>
         </div>
 
         {/* ── Step indicator ── */}
         <div className="flex items-center gap-2 mb-6">
-          <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step === "form" ? "gradient-primary" : "bg-emerald-500"}`} />
-          <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step === "otp" ? "gradient-primary" : "bg-gray-200 dark:bg-dark-border"}`} />
+          <div
+            className={`flex-1 h-1 rounded-full transition-all duration-500 ${step === "form" ? "gradient-primary" : "bg-emerald-500"}`}
+          />
+          <div
+            className={`flex-1 h-1 rounded-full transition-all duration-500 ${step === "otp" ? "gradient-primary" : "bg-gray-200 dark:bg-dark-border"}`}
+          />
         </div>
 
         {/* ════════════════════════════════════════════════════════ */}
@@ -154,36 +168,91 @@ const RegisterPage = () => {
         {/* ════════════════════════════════════════════════════════ */}
         {step === "form" && (
           <>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Create Account</h2>
-            <p className="text-gray-500 dark:text-gray-500 text-sm mb-6">Join thousands finding their perfect PG</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              Create Account
+            </h2>
+            <p className="text-gray-500 dark:text-gray-500 text-sm mb-6">
+              Join thousands finding their perfect PG
+            </p>
 
             <form onSubmit={handleSendOtp} className="space-y-4">
-              <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
-              <Input label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} placeholder="john@example.com" required />
-              <Input label="Phone (optional)" name="phone" value={formData.phone} onChange={handleChange} placeholder="9876543210" />
-              <Input label="Password" type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Min 6 characters" required />
+              <Input
+                label="Full Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                required
+              />
+              <Input
+                label="Email Address"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="john@example.com"
+                required
+              />
+              <Input
+                label="Phone (optional)"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="9876543210"
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Min 6 characters"
+                required
+              />
 
               {/* Role selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Register As</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Register As
+                </label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: "user", label: "Tenant", desc: "Looking for PG", icon: "🔍" },
-                    { value: "owner", label: "Owner", desc: "Listing a PG", icon: "🏠" },
+                    {
+                      value: "user",
+                      label: "Tenant",
+                      desc: "Looking for PG",
+                      icon: "search",
+                    },
+                    {
+                      value: "owner",
+                      label: "Owner",
+                      desc: "Listing a PG",
+                      icon: "home",
+                    },
                   ].map((role) => (
                     <button
                       key={role.value}
                       type="button"
-                      onClick={() => setFormData({ ...formData, role: role.value })}
+                      onClick={() =>
+                        setFormData({ ...formData, role: role.value })
+                      }
                       className={`p-3 rounded-xl border-2 text-left transition-all ${
                         formData.role === role.value
                           ? "border-blue-500/50 bg-blue-50 dark:bg-blue-500/10"
                           : "border-gray-200 dark:border-dark-border hover:border-gray-400 dark:hover:border-gray-600"
                       }`}
                     >
-                      <span className="text-xl">{role.icon}</span>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">{role.label}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">{role.desc}</p>
+                      <AppIcon
+                        name={role.icon}
+                        size={24}
+                        className="text-blue-600"
+                      />
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
+                        {role.label}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        {role.desc}
+                      </p>
                     </button>
                   ))}
                 </div>
@@ -205,16 +274,24 @@ const RegisterPage = () => {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-500/10 mb-4">
                 <span className="text-3xl">🔐</span>
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Verify Your Email</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                Verify Your Email
+              </h2>
               <p className="text-gray-500 dark:text-gray-500 text-sm">
-                We sent a 4-digit code to<br />
-                <span className="text-blue-600 dark:text-blue-400 font-semibold">{formData.email}</span>
+                We sent a 4-digit code to
+                <br />
+                <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                  {formData.email}
+                </span>
               </p>
             </div>
 
             <form onSubmit={handleVerifyAndRegister} className="space-y-6">
               {/* OTP input boxes */}
-              <div className="flex justify-center gap-3" onPaste={handleOtpPaste}>
+              <div
+                className="flex justify-center gap-3"
+                onPaste={handleOtpPaste}
+              >
                 {otp.map((digit, i) => (
                   <input
                     key={i}
@@ -260,7 +337,10 @@ const RegisterPage = () => {
                 </p>
                 <button
                   type="button"
-                  onClick={() => { setStep("form"); setOtp(["", "", "", ""]); }}
+                  onClick={() => {
+                    setStep("form");
+                    setOtp(["", "", "", ""]);
+                  }}
                   className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 text-sm transition-colors"
                 >
                   ← Change email or details
@@ -272,7 +352,10 @@ const RegisterPage = () => {
 
         <p className="text-center text-gray-500 dark:text-gray-500 mt-6 text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
+          <Link
+            to="/login"
+            className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
+          >
             Login here
           </Link>
         </p>
