@@ -1,5 +1,9 @@
 {
   "rewrites": [
+     {
+      "source": "/api/:path*",
+      "destination": "https://pg-finder-r8x1.onrender.com/api/:path*"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

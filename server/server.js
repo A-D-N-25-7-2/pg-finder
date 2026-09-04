@@ -14,12 +14,21 @@ const app = express();
 app.use(helmet());
 
 // ── CORS — allow only frontend origin ────────────────────────
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "https://pg-finder-bay.vercel.app",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:5173" ||
-      "https://pg-finder-bay.vercel.app",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
