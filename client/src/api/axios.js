@@ -10,7 +10,7 @@ const apiBaseUrl = configuredApiUrl
 
 const API = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 15000,
+  timeout: 30000,
   headers: { "Content-Type": "application/json" },
 });
 

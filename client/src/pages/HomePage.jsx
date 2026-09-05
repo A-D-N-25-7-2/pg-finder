@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/layout/Footer";
 import AppIcon from "../components/ui/AppIcon";
+import { useAuth } from "../context/AuthContext";
 
 const features = [
   {
@@ -34,6 +35,7 @@ const stats = [
 ];
 
 const HomePage = () => {
+  const { user } = useAuth();
   const [city, setCity] = useState("");
   const navigate = useNavigate();
 
@@ -165,7 +167,7 @@ const HomePage = () => {
             <button
               key={item.type}
               onClick={() => navigate(`/search?type=${item.type}`)}
-              className={`bg-gradient-to-br ${item.gradient} border rounded-2xl p-8 text-left transition-all hover:scale-[1.02] group`}
+              className={`home-choice-card bg-gradient-to-br ${item.gradient} border rounded-2xl p-8 text-left group`}
             >
               <AppIcon
                 name={item.icon}
@@ -219,7 +221,7 @@ const HomePage = () => {
               <button
                 key={item.gender}
                 onClick={() => navigate(`/search?gender=${item.gender}`)}
-                className={`border-2 ${item.color} px-8 py-4 rounded-2xl font-semibold transition-all text-lg hover:scale-105`}
+                className={`home-preference-card border-2 ${item.color} px-8 py-4 rounded-2xl font-semibold text-lg`}
               >
                 <AppIcon
                   name={item.icon}
@@ -261,7 +263,7 @@ const HomePage = () => {
       </div>
 
       {/* ── CTA ──────────────────────────────────────────── */}
-      <div className="relative overflow-hidden">
+      { !user && <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
         <div className="relative max-w-3xl mx-auto py-20 px-4 text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -272,13 +274,15 @@ const HomePage = () => {
             looking for accommodation right now.
           </p>
           <button
-            onClick={() => navigate("/register")}
+            onClick={() => {
+              navigate("/register");
+            }}
             className="gradient-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition shadow-lg shadow-blue-500/25"
           >
             List Your Property Free →
           </button>
         </div>
-      </div>
+      </div>}
 
       <Footer />
     </div>

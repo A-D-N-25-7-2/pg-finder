@@ -120,7 +120,7 @@ const Navbar = () => {
   const visibleTabs = getRoleTabs();
 
   return (
-    <nav className="sticky top-0 z-50 glass-strong border-b border-gray-200/50 dark:border-dark-border/50">
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-dark-base/80 border-b border-gray-200/50 dark:border-dark-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-[4.75rem]">
           {/* ─── LEFT: Logo ─── */}

@@ -224,19 +224,49 @@ body {
 
 /* ── Card Hover Glow ───────────────────────────────────── */
 .card-glow {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: translate, box-shadow, border-color;
+  transition:
+    translate 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease;
 }
 .card-glow:hover {
   box-shadow:
     0 0 30px rgba(59, 130, 246, 0.08),
     0 12px 40px rgba(0, 0, 0, 0.12);
   border-color: rgba(59, 130, 246, 0.25);
-  transform: translateY(-4px);
+  translate: 0 -4px;
 }
 .dark .card-glow:hover {
   box-shadow:
     0 0 30px rgba(59, 130, 246, 0.1),
     0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.home-choice-card {
+  will-change: transform, box-shadow, border-color, background-color;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease,
+    background-color 0.45s ease;
+}
+.home-choice-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 18px 35px rgba(37, 99, 235, 0.18);
+}
+
+.home-preference-card {
+  will-change: transform, box-shadow, border-color, background-color;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+}
+.home-preference-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.14);
 }
 
 .stat-card {
