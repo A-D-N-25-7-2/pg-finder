@@ -1,23 +1,20 @@
-const nodemailer = require("nodemailer");
-const port = Number(process.env.EMAIL_PORT) || 587;
-const sendEmail = async ({ to, subject, html }) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port,
-    secure: port === 587,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    family: 4,
-  });
+const { Resend } = require("resend");
 
-  await transporter.sendMail({
-    from: `"PG Finder" <${process.env.EMAIL_USER}>`,
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const sendEmail = async ({ to, subject, html }) => {
+  const { data, error } = await resend.emails.send({
+    from: "PG Finder <onboarding@resend.dev>", // use your verified domain once you have one
     to,
     subject,
     html,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
-module.exports = sendEmail;
+module.exports = { sendEmail };
