@@ -146,7 +146,11 @@ const RegisterPage = () => {
 
       <div className="relative bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border p-8 rounded-2xl shadow-2xl dark:shadow-gray-900 w-full max-w-md animate-slide-up">
         <div className="text-center mb-8">
-          <span className="text-4xl">🏠</span>
+          <img
+            src="/favicon.svg"
+            alt="PG Finder"
+            className="brand-mark w-12 h-12 mx-auto"
+          />
           <h1 className="text-2xl font-bold gradient-text mt-2">PG Finder</h1>
           <p className="text-gray-500 dark:text-gray-500 text-sm mt-1">
             Find your perfect home away from home

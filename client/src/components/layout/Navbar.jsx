@@ -128,9 +128,11 @@ const Navbar = () => {
             to="/"
             className="nav-logo flex items-center gap-2.5 group shrink-0"
           >
-            <span className="nav-logo-icon text-3xl inline-block transition-transform duration-300">
-              🏠
-            </span>
+            <img
+              src="/favicon.svg"
+              alt="PG Finder"
+              className="nav-logo-icon brand-mark w-8 h-8 inline-block transition-transform duration-300"
+            />
             <span className="nav-logo-text text-[1.35rem] font-bold gradient-text transition-all duration-300">
               PG Finder
             </span>

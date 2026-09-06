@@ -606,6 +606,13 @@ body {
 }
 
 /* Logo hover */
+.brand-mark {
+  background: #ffffff;
+  border: 0.5px solid #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+}
+
 .nav-logo:hover .nav-logo-icon {
   transform: scale(1.1) rotate(-5deg);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
